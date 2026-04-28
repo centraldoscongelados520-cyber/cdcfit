@@ -13,17 +13,31 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 100,
+        max_tokens: 1000,
         messages: [{
           role: 'user',
           content: [
             { type: 'image', source: { type: 'base64', media_type: tipo || 'image/jpeg', data: imagem } },
-            { type: 'text', text: `Conte quantas embalagens de marmita existem nesta foto.
-A foto mostra uma bandeja vista de CIMA com embalagens pretas retangulares dispostas em grade (fileiras e colunas).
-Cada embalagem tem uma tampa transparente com etiqueta branca no centro.
-Conte cada embalagem individual.
-Exemplos: 2 colunas x 4 linhas = 8. 2 colunas x 3 linhas = 6.
-Responda APENAS com JSON: {"quantidade": N}` }
+            { type: 'text', text: `Você lê notas fiscais brasileiras em papel ou XML.
+Extraia as informações e responda APENAS com JSON válido:
+{
+  "fornecedor": "nome do fornecedor",
+  "cnpj": "XX.XXX.XXX/XXXX-XX",
+  "data": "DD/MM/AAAA",
+  "numero_nf": "número da nota",
+  "itens": [
+    {
+      "descricao": "nome do produto",
+      "quantidade": N,
+      "unidade": "KG ou UN ou CX etc",
+      "valor_unitario": N.NN,
+      "valor_total": N.NN
+    }
+  ],
+  "valor_total": N.NN
+}
+Se não conseguir ler algum campo deixe como null.
+Se não conseguir ler nenhum item retorne itens como array vazio.` }
           ]
         }]
       })
@@ -31,9 +45,10 @@ Responda APENAS com JSON: {"quantidade": N}` }
     const data = await resp.json();
     const txt = data.content?.find(c => c.type === 'text')?.text || '';
     const parsed = JSON.parse(txt.replace(/```json|```/g, '').trim());
-    res.status(200).json({ quantidade: parsed.quantidade || 0 });
+    res.status(200).json(parsed);
   } catch (e) {
-    console.error('Erro:', e.message);
-    res.status(500).json({ quantidade: 0 });
+    console.error('Erro NF:', e.message);
+    res.status(500).json({ error: 'Erro ao ler nota fiscal', itens: [] });
   }
 }
+ 
