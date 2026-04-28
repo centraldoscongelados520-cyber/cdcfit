@@ -21,7 +21,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-red{background:#C0392B;color:#fff;}
 .btn-gray{background:#f0f0f0;color:#333;}
 .btn-green{background:#1D9E75;color:#fff;}
-.btn-blue{background:#1a6fb5;color:#fff;}
 .alert-card{border-left:3px solid #E24B4A;background:#fff8f8;border-radius:8px;padding:10px 12px;margin-bottom:8px;}
 .alert-card.warn{border-left-color:#EF9F27;background:#fffbf0;}
 .prod-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;}
@@ -32,30 +31,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .badge.low{background:#FFF3CD;color:#7a5000;}
 .badge.zero{background:#fde8e8;color:#9b1c1c;}
 .fav-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
-.fav-btn{background:#f7f7f7;border:1px solid #e0e0e0;border-radius:8px;padding:12px 10px;cursor:pointer;text-align:left;width:100%;transition:all .15s;}
+.fav-btn{background:#f7f7f7;border:1px solid #e0e0e0;border-radius:8px;padding:12px 10px;cursor:pointer;text-align:left;width:100%;}
 .fav-btn.sel{border-color:#C0392B;background:#fff0ef;}
 .fav-num{font-size:11px;font-weight:600;color:#888;}
 .fav-name{font-size:12px;color:#222;margin-top:2px;}
 .select-prato{width:100%;padding:11px;border-radius:8px;border:1px solid #ddd;font-size:14px;color:#222;background:#fff;margin-bottom:10px;}
-.resumo-box{background:#f0fff8;border:1px solid #1D9E75;border-radius:10px;padding:14px;margin-bottom:12px;}
-.resumo-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;}
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:#fff;border-top:1px solid #eee;display:flex;z-index:100;}
-.nav button{flex:1;padding:10px 4px;border:none;background:transparent;cursor:pointer;}
-.nav button span:first-child{font-size:20px;display:block;}
-.nav button span:last-child{font-size:9px;color:#999;margin-top:2px;display:block;}
-.nav button.active span:last-child{color:#C0392B;}
-.toast{position:fixed;top:0;left:50%;transform:translateX(-50%);background:#1D9E75;color:#fff;padding:10px 20px;border-radius:0 0 10px 10px;z-index:999;font-size:13px;font-weight:600;max-width:440px;width:100%;text-align:center;display:none;}
-/* prato selecionado card */
-.prato-sel-card{background:#fff0ef;border:2px solid #C0392B;border-radius:12px;padding:14px;margin-bottom:14px;}
+.prato-sel-card{background:#fff0ef;border:2px solid #C0392B;border-radius:12px;padding:14px;margin-bottom:20px;}
 .prato-sel-card .psc-num{font-size:11px;font-weight:600;color:#C0392B;}
-.prato-sel-card .psc-nome{font-size:16px;font-weight:700;color:#222;margin-top:2px;}
-/* quantidade grande */
-.qty-display{text-align:center;margin-bottom:16px;}
-.qty-big{font-size:72px;font-weight:700;color:#C0392B;line-height:1;}
-.qty-lbl{font-size:13px;color:#888;margin-top:4px;}
-.qty-sub{font-size:12px;color:#aaa;margin-top:2px;}
-.cam-area{background:#f7f7f7;border-radius:12px;padding:24px 20px;text-align:center;border:2px dashed #ccc;margin-bottom:14px;cursor:pointer;}
-.cam-area.loading{border-color:#C0392B;background:#fff0ef;}
+.prato-sel-card .psc-nome{font-size:17px;font-weight:700;color:#222;margin-top:2px;}
+/* Botões 8 e 9 */
+.qty-btns{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.qty-btn{padding:30px 10px;border-radius:16px;border:none;cursor:pointer;text-align:center;transition:transform .1s;}
+.qty-btn:active{transform:scale(.96);}
+.qty-btn .qn{font-size:64px;font-weight:700;line-height:1;color:#fff;}
+.qty-btn .ql{font-size:13px;color:rgba(255,255,255,.85);margin-top:6px;}
+.qty-btn-8{background:#C0392B;}
+.qty-btn-9{background:#1a6fb5;}
+.qty-btn.sel{box-shadow:0 0 0 4px #222;}
+/* confirmação */
+.confirmar-box{background:#f0fff8;border:2px solid #1D9E75;border-radius:12px;padding:16px;margin-bottom:14px;text-align:center;}
+.confirmar-box .cb-qty{font-size:48px;font-weight:700;color:#C0392B;}
+.confirmar-box .cb-nome{font-size:14px;color:#333;margin-top:4px;}
+.ic-fin{display:flex;gap:8px;margin-top:12px;}
+.ic-fin-box{flex:1;background:#fff;border-radius:8px;padding:8px;text-align:center;border:1px solid #eee;}
+.ic-fin-box .v{font-size:13px;font-weight:700;}
+.ic-fin-box .l{font-size:10px;color:#888;margin-top:2px;}
 /* login */
 #login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:#C0392B;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;padding:30px;}
 #login-screen h1{color:#fff;font-size:28px;font-weight:700;margin-bottom:6px;}
@@ -68,10 +68,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .login-perfil{display:flex;gap:10px;margin-bottom:20px;}
 .login-perfil button{flex:1;padding:12px;border-radius:10px;border:2px solid #e0e0e0;background:#f7f7f7;font-size:13px;font-weight:600;cursor:pointer;color:#333;}
 .login-perfil button.sel{border-color:#C0392B;background:#fff0ef;color:#C0392B;}
-.ic-fin{display:flex;gap:8px;margin-top:10px;}
-.ic-fin-box{flex:1;background:#f7f7f7;border-radius:8px;padding:8px;text-align:center;}
-.ic-fin-box .v{font-size:13px;font-weight:700;}
-.ic-fin-box .l{font-size:10px;color:#888;margin-top:2px;}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:#fff;border-top:1px solid #eee;display:flex;z-index:100;}
+.nav button{flex:1;padding:10px 4px;border:none;background:transparent;cursor:pointer;}
+.nav button span:first-child{font-size:20px;display:block;}
+.nav button span:last-child{font-size:9px;color:#999;margin-top:2px;display:block;}
+.nav button.active span:last-child{color:#C0392B;}
+.toast{position:fixed;top:0;left:50%;transform:translateX(-50%);background:#1D9E75;color:#fff;padding:10px 20px;border-radius:0 0 10px 10px;z-index:999;font-size:13px;font-weight:600;max-width:440px;width:100%;text-align:center;display:none;}
 </style>
 </head>
 <body>
@@ -118,77 +120,66 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="met"><div class="val" id="h-rec">R$ 0,00</div><div class="lbl">Receita potencial</div></div>
       <div class="met"><div class="val" id="h-est">0</div><div class="lbl">Total em estoque</div></div>
     </div>
-    <button class="btn btn-red" onclick="goTo('producao')">📸 Registrar produção</button>
+    <button class="btn btn-red" onclick="goTo('producao')">🍱 Registrar produção</button>
     <div id="h-alertas"></div>
     <div id="h-registros"></div>
   </div>
  
-  <!-- PRODUÇÃO — novo fluxo -->
+  <!-- PRODUÇÃO -->
   <div id="s-producao" class="content" style="display:none">
  
-    <!-- PASSO 1: selecionar prato -->
+    <!-- PASSO 1: escolher prato -->
     <div id="p-passo1">
-      <span class="sec">Passo 1 — Qual prato é esse?</span>
-      <span class="sec" style="margin-top:0">Favoritos</span>
+      <span class="sec">Passo 1 — Qual prato?</span>
       <div class="fav-grid" id="fav-grid"></div>
       <span class="sec">Todos os pratos</span>
-      <select class="select-prato" id="sel-todos" onchange="selecionarPrato(this.value);this.value=''">
+      <select class="select-prato" onchange="selecionarPrato(this.value);this.value=''">
         <option value="">Selecionar prato...</option>
       </select>
     </div>
  
-    <!-- PASSO 2: foto para contar -->
+    <!-- PASSO 2: quantas embalagens -->
     <div id="p-passo2" style="display:none">
-      <div class="prato-sel-card" id="prato-sel-card">
+      <div class="prato-sel-card">
         <div class="psc-num" id="psc-num">Nº —</div>
         <div class="psc-nome" id="psc-nome">—</div>
       </div>
  
-      <span class="sec">Passo 2 — Fotografe a bandeja</span>
-      <div class="cam-area" id="cam-area" onclick="document.getElementById('fileinput').click()">
-        <div style="font-size:36px" id="cam-icon">📸</div>
-        <div style="font-size:14px;font-weight:600;margin-top:8px;color:#222" id="cam-title">Tocar para fotografar</div>
-        <div style="font-size:12px;color:#888;margin-top:4px" id="cam-sub">A IA conta as embalagens automaticamente</div>
+      <span class="sec">Passo 2 — Quantas embalagens na bandeja?</span>
+      <div class="qty-btns">
+        <button class="qty-btn qty-btn-8" id="qbtn-8" onclick="selecionarQty(8)">
+          <div class="qn">8</div>
+          <div class="ql">embalagens</div>
+        </button>
+        <button class="qty-btn qty-btn-9" id="qbtn-9" onclick="selecionarQty(9)">
+          <div class="qn">9</div>
+          <div class="ql">embalagens</div>
+        </button>
       </div>
-      <input id="fileinput" type="file" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(this)">
  
-      <button class="btn btn-gray" onclick="voltarPasso1()" style="margin-top:4px">↩ Trocar prato</button>
+      <div style="text-align:center;margin-bottom:16px;color:#888;font-size:13px">— ou quantidade diferente —</div>
+      <input type="number" min="1" id="qty-outro" placeholder="Outra quantidade..."
+        style="width:100%;padding:13px;border-radius:8px;border:1px solid #ddd;font-size:18px;text-align:center;font-weight:700;color:#222;margin-bottom:10px"
+        oninput="selecionarQtyManual(this.value)">
+ 
+      <button class="btn btn-gray" onclick="voltarPasso1()">↩ Trocar prato</button>
     </div>
  
-    <!-- PASSO 3: confirmar quantidade -->
+    <!-- PASSO 3: confirmar -->
     <div id="p-passo3" style="display:none">
-      <div class="prato-sel-card">
-        <div class="psc-num" id="psc-num3">Nº —</div>
-        <div class="psc-nome" id="psc-nome3">—</div>
-      </div>
- 
-      <img id="preview-img" style="width:100%;border-radius:10px;margin-bottom:14px;max-height:180px;object-fit:cover;display:none;">
- 
-      <span class="sec">Passo 3 — Confirme a quantidade</span>
-      <div class="qty-display">
-        <div class="qty-big" id="qty-big">0</div>
-        <div class="qty-lbl">embalagens contadas pela IA</div>
-        <div class="qty-sub">Toque no número para corrigir se necessário</div>
-      </div>
- 
-      <input type="number" min="1" id="qty-input"
-        style="width:100%;padding:14px;border-radius:8px;border:1px solid #ddd;font-size:28px;text-align:center;font-weight:700;color:#222;margin-bottom:12px;display:none"
-        oninput="atualizarQtyManual(this.value)">
- 
-      <button style="background:none;border:none;color:#888;font-size:12px;cursor:pointer;width:100%;margin-bottom:14px;text-decoration:underline"
-        onclick="toggleEditQty()" id="btn-editar-qty">✏️ Editar quantidade</button>
- 
-      <div id="resumo-financeiro" style="display:none">
+      <span class="sec">Passo 3 — Confirme</span>
+      <div class="confirmar-box">
+        <div class="cb-qty" id="cb-qty">0</div>
+        <div class="cb-nome" id="cb-nome">—</div>
         <div class="ic-fin">
-          <div class="ic-fin-box"><div class="v" style="color:#C0392B" id="r-custo">R$ 0</div><div class="l">Custo</div></div>
-          <div class="ic-fin-box"><div class="v" style="color:#1D9E75" id="r-rec">R$ 0</div><div class="l">Receita</div></div>
-          <div class="ic-fin-box"><div class="v" style="color:#1a6fb5" id="r-luc">R$ 0</div><div class="l">Lucro</div></div>
+          <div class="ic-fin-box"><div class="v" style="color:#C0392B" id="cf-custo">R$ 0</div><div class="l">Custo</div></div>
+          <div class="ic-fin-box"><div class="v" style="color:#1D9E75" id="cf-rec">R$ 0</div><div class="l">Receita</div></div>
+          <div class="ic-fin-box"><div class="v" style="color:#1a6fb5" id="cf-luc">R$ 0</div><div class="l">Lucro</div></div>
         </div>
       </div>
- 
-      <button class="btn btn-green" id="btn-confirmar" onclick="confirmar()" style="margin-top:14px">✓ Confirmar e lançar no estoque</button>
-      <button class="btn btn-blue" onclick="voltarPasso2()">📸 Tirar outra foto</button>
-      <button class="btn btn-gray" onclick="resetProd()">↩ Cancelar</button>
+      <button class="btn btn-green" onclick="confirmar()">✓ Confirmar e lançar no estoque</button>
+      <button class="btn btn-gray" onclick="voltarPasso2()">↩ Corrigir quantidade</button>
+      <button class="btn btn-gray" onclick="resetProd()">✕ Cancelar</button>
     </div>
   </div>
  
@@ -216,7 +207,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
  
   <nav class="nav">
     <button id="nav-home" class="active" onclick="goTo('home')"><span>🏠</span><span>Início</span></button>
-    <button id="nav-producao" onclick="goTo('producao')"><span>📸</span><span>Produção</span></button>
+    <button id="nav-producao" onclick="goTo('producao')"><span>🍱</span><span>Produção</span></button>
     <button id="nav-estoque" onclick="goTo('estoque')"><span>📦</span><span>Estoque</span></button>
     <button id="nav-financeiro" style="display:none" onclick="goTo('financeiro')"><span>💰</span><span>Financeiro</span></button>
   </nav>
@@ -283,8 +274,7 @@ const EST0={'6':39,'17':32,'18':25,'21':26,'22':20,'23':25,'25':22,'26':55,'27':
 let estoque=JSON.parse(localStorage.getItem('cdc-est')||JSON.stringify(EST0));
 let prod=JSON.parse(localStorage.getItem('cdc-prod')||'[]');
 prod=prod.filter(p=>new Date(p.ts).toDateString()===new Date().toDateString());
- 
-let pratoAtual=null,qtyAtual=0,editandoQty=false;
+let pratoAtual=null,qtyAtual=0;
  
 function salvarEst(){localStorage.setItem('cdc-est',JSON.stringify(estoque));}
 function salvarProd(){localStorage.setItem('cdc-prod',JSON.stringify(prod));}
@@ -295,27 +285,18 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
  
 function goTo(s){
   ['home','producao','estoque','financeiro'].forEach(x=>{document.getElementById('s-'+x).style.display='none';document.getElementById('nav-'+x).classList.remove('active');});
-  document.getElementById('s-'+s).style.display='block';
-  document.getElementById('nav-'+s).classList.add('active');
-  if(s==='home')renderHome();
-  if(s==='estoque')renderEstoque();
-  if(s==='financeiro')renderFinanceiro();
-  if(s==='producao')resetProd();
+  document.getElementById('s-'+s).style.display='block';document.getElementById('nav-'+s).classList.add('active');
+  if(s==='home')renderHome();if(s==='estoque')renderEstoque();if(s==='financeiro')renderFinanceiro();if(s==='producao')resetProd();
 }
  
 function resetProd(){
-  pratoAtual=null;qtyAtual=0;editandoQty=false;
+  pratoAtual=null;qtyAtual=0;
   document.getElementById('p-passo1').style.display='block';
   document.getElementById('p-passo2').style.display='none';
   document.getElementById('p-passo3').style.display='none';
-  document.getElementById('preview-img').style.display='none';
-  document.getElementById('fileinput').value='';
-  // reset cam area
-  document.getElementById('cam-area').className='cam-area';
-  document.getElementById('cam-icon').textContent='📸';
-  document.getElementById('cam-title').textContent='Tocar para fotografar';
-  document.getElementById('cam-sub').textContent='A IA conta as embalagens automaticamente';
-  // reset favoritos
+  document.getElementById('qty-outro').value='';
+  document.getElementById('qbtn-8').classList.remove('sel');
+  document.getElementById('qbtn-9').classList.remove('sel');
   document.querySelectorAll('.fav-btn').forEach(b=>b.classList.remove('sel'));
 }
  
@@ -323,59 +304,55 @@ function voltarPasso1(){resetProd();}
 function voltarPasso2(){
   document.getElementById('p-passo3').style.display='none';
   document.getElementById('p-passo2').style.display='block';
-  document.getElementById('preview-img').style.display='none';
-  document.getElementById('fileinput').value='';
-  document.getElementById('cam-area').className='cam-area';
-  document.getElementById('cam-icon').textContent='📸';
-  document.getElementById('cam-title').textContent='Tocar para fotografar novamente';
-  document.getElementById('cam-sub').textContent='A IA vai recontá las embalagens';
+  document.getElementById('qbtn-8').classList.remove('sel');
+  document.getElementById('qbtn-9').classList.remove('sel');
+  document.getElementById('qty-outro').value='';
+  qtyAtual=0;
 }
  
 function selecionarPrato(num){
   const p=getPrato(num);if(!p)return;
   pratoAtual=p;
-  // destaca favorito
   document.querySelectorAll('.fav-btn').forEach(b=>b.classList.remove('sel'));
-  const btn=document.querySelector(`.fav-btn[data-num="${num}"]`);
-  if(btn)btn.classList.add('sel');
-  // mostra passo 2
+  const btn=document.querySelector(`.fav-btn[data-num="${num}"]`);if(btn)btn.classList.add('sel');
   document.getElementById('p-passo1').style.display='none';
   document.getElementById('p-passo2').style.display='block';
   document.getElementById('psc-num').textContent='Nº '+p.num;
   document.getElementById('psc-nome').textContent=p.curto;
 }
  
-function toggleEditQty(){
-  editandoQty=!editandoQty;
-  const inp=document.getElementById('qty-input');
-  const big=document.getElementById('qty-big');
-  const btn=document.getElementById('btn-editar-qty');
-  if(editandoQty){inp.style.display='block';inp.value=qtyAtual;inp.focus();big.style.display='none';btn.textContent='✓ Usar esse valor';}
-  else{const v=parseInt(inp.value)||0;if(v>0){qtyAtual=v;big.textContent=v;atualizarFinanceiro();}inp.style.display='none';big.style.display='block';btn.textContent='✏️ Editar quantidade';}
+function selecionarQty(q){
+  qtyAtual=q;
+  document.getElementById('qbtn-8').classList.toggle('sel',q===8);
+  document.getElementById('qbtn-9').classList.toggle('sel',q===9);
+  document.getElementById('qty-outro').value='';
+  setTimeout(()=>mostrarConfirmacao(),200);
 }
  
-function atualizarQtyManual(v){qtyAtual=parseInt(v)||0;atualizarFinanceiro();}
- 
-function atualizarFinanceiro(){
-  if(!pratoAtual||qtyAtual<=0){document.getElementById('resumo-financeiro').style.display='none';return;}
-  document.getElementById('resumo-financeiro').style.display='block';
-  document.getElementById('r-custo').textContent=brl(qtyAtual*pratoAtual.custo);
-  document.getElementById('r-rec').textContent=brl(qtyAtual*pratoAtual.preco);
-  document.getElementById('r-luc').textContent=brl(qtyAtual*(pratoAtual.preco-pratoAtual.custo));
+function selecionarQtyManual(v){
+  const q=parseInt(v)||0;
+  if(q>0){
+    qtyAtual=q;
+    document.getElementById('qbtn-8').classList.remove('sel');
+    document.getElementById('qbtn-9').classList.remove('sel');
+  }
 }
  
-function mostrarPasso3(qty){
-  qtyAtual=qty;editandoQty=false;
+function mostrarConfirmacao(){
+  if(!pratoAtual||qtyAtual<=0)return;
   document.getElementById('p-passo2').style.display='none';
   document.getElementById('p-passo3').style.display='block';
-  document.getElementById('psc-num3').textContent='Nº '+pratoAtual.num;
-  document.getElementById('psc-nome3').textContent=pratoAtual.curto;
-  document.getElementById('qty-big').textContent=qty;
-  document.getElementById('qty-big').style.display='block';
-  document.getElementById('qty-input').style.display='none';
-  document.getElementById('btn-editar-qty').textContent='✏️ Editar quantidade';
-  atualizarFinanceiro();
+  document.getElementById('cb-qty').textContent=qtyAtual;
+  document.getElementById('cb-nome').textContent='Prato '+pratoAtual.num+' — '+pratoAtual.curto;
+  document.getElementById('cf-custo').textContent=brl(qtyAtual*pratoAtual.custo);
+  document.getElementById('cf-rec').textContent=brl(qtyAtual*pratoAtual.preco);
+  document.getElementById('cf-luc').textContent=brl(qtyAtual*(pratoAtual.preco-pratoAtual.custo));
 }
+ 
+// botão confirmar do passo 2 para outra quantidade
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('qty-outro').addEventListener('keydown',e=>{if(e.key==='Enter'&&qtyAtual>0)mostrarConfirmacao();});
+});
  
 function confirmar(){
   if(!pratoAtual||qtyAtual<=0){toast('Quantidade inválida!');return;}
@@ -386,61 +363,9 @@ function confirmar(){
   resetProd();goTo('home');
 }
  
-async function resizeImage(file){
-  return new Promise((resolve)=>{
-    const img=new Image();
-    const url=URL.createObjectURL(file);
-    img.onload=()=>{
-      const MAX=900;let w=img.width,h=img.height;
-      if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
-      const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
-      canvas.getContext('2d').drawImage(img,0,0,w,h);
-      URL.revokeObjectURL(url);
-      resolve(canvas.toDataURL('image/jpeg',0.75).split(',')[1]);
-    };
-    img.onerror=()=>resolve(null);img.src=url;
-  });
-}
- 
-async function handlePhoto(input){
-  const file=input.files[0];if(!file)return;
-  // mostrar preview
-  const url=URL.createObjectURL(file);
-  document.getElementById('preview-img').src=url;
-  // loading state
-  document.getElementById('cam-area').className='cam-area loading';
-  document.getElementById('cam-icon').textContent='🔍';
-  document.getElementById('cam-title').textContent='Contando embalagens...';
-  document.getElementById('cam-sub').textContent='Aguarde um momento';
-  try{
-    const b64=await resizeImage(file);
-    if(!b64)throw new Error('erro resize');
-    const resp=await fetch('/api/analisar',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({imagem:b64,tipo:'image/jpeg',modoContagem:true})
-    });
-    const data=await resp.json();
-    const qty=data.quantidade||0;
-    document.getElementById('preview-img').style.display='block';
-    if(qty>0){
-      mostrarPasso3(qty);
-    }else{
-      // não contou — vai para passo 3 com 0 para editar
-      mostrarPasso3(0);
-      toast('Não consegui contar — edite a quantidade manualmente');
-    }
-  }catch(e){
-    document.getElementById('preview-img').style.display='block';
-    mostrarPasso3(0);
-    toast('Erro ao analisar — edite a quantidade manualmente');
-  }
-  input.value='';
-}
- 
 function initSelects(){
   document.getElementById('fav-grid').innerHTML=PRODUTOS.filter(p=>p.fav).map(p=>`<button class="fav-btn" data-num="${p.num}" onclick="selecionarPrato('${p.num}')"><div class="fav-num">Nº ${p.num}</div><div class="fav-name">${p.curto}</div></button>`).join('');
-  document.getElementById('sel-todos').innerHTML='<option value="">Selecionar prato...</option>'+PRODUTOS.map(p=>`<option value="${p.num}">Nº ${p.num} — ${p.curto}</option>`).join('');
+  document.querySelector('.select-prato').innerHTML='<option value="">Selecionar prato...</option>'+PRODUTOS.map(p=>`<option value="${p.num}">Nº ${p.num} — ${p.curto}</option>`).join('');
 }
  
 function renderHome(){
