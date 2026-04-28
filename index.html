@@ -31,34 +31,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .badge.ok{background:#EAF3DE;color:#2d6a0f;}
 .badge.low{background:#FFF3CD;color:#7a5000;}
 .badge.zero{background:#fde8e8;color:#9b1c1c;}
-.cam-area{background:#f7f7f7;border-radius:12px;padding:32px 20px;text-align:center;border:2px dashed #ccc;margin-bottom:14px;cursor:pointer;}
-.item-card{background:#f7f7f7;border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid #e8e8e8;}
-.item-card .ic-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.item-card .ic-title{font-size:13px;font-weight:600;color:#222;}
-.item-card .ic-del{background:none;border:none;color:#C0392B;font-size:18px;cursor:pointer;}
-.item-card .ic-row{display:flex;gap:8px;align-items:center;}
-.item-card select{flex:1;padding:8px 10px;border-radius:8px;border:1px solid #ddd;font-size:13px;color:#222;background:#fff;}
-.item-card input[type=number]{width:75px;padding:8px;border-radius:8px;border:1px solid #ddd;font-size:20px;text-align:center;font-weight:700;color:#222;}
-.ic-fin{display:flex;gap:6px;margin-top:8px;}
-.ic-fin-box{flex:1;background:#fff;border-radius:6px;padding:6px 8px;text-align:center;border:1px solid #eee;}
-.ic-fin-box .v{font-size:12px;font-weight:700;}
-.ic-fin-box .l{font-size:9px;color:#888;margin-top:1px;}
-.resumo-box{background:#f0fff8;border:1px solid #1D9E75;border-radius:10px;padding:12px;margin-bottom:12px;}
-.resumo-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
-.select-prato{width:100%;padding:11px;border-radius:8px;border:1px solid #ddd;font-size:14px;color:#222;background:#fff;margin-bottom:10px;}
 .fav-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
-.fav-btn{background:#f7f7f7;border:1px solid #e0e0e0;border-radius:8px;padding:10px 8px;cursor:pointer;text-align:left;width:100%;}
+.fav-btn{background:#f7f7f7;border:1px solid #e0e0e0;border-radius:8px;padding:12px 10px;cursor:pointer;text-align:left;width:100%;transition:all .15s;}
+.fav-btn.sel{border-color:#C0392B;background:#fff0ef;}
 .fav-num{font-size:11px;font-weight:600;color:#888;}
 .fav-name{font-size:12px;color:#222;margin-top:2px;}
+.select-prato{width:100%;padding:11px;border-radius:8px;border:1px solid #ddd;font-size:14px;color:#222;background:#fff;margin-bottom:10px;}
+.resumo-box{background:#f0fff8;border:1px solid #1D9E75;border-radius:10px;padding:14px;margin-bottom:12px;}
+.resumo-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:#fff;border-top:1px solid #eee;display:flex;z-index:100;}
 .nav button{flex:1;padding:10px 4px;border:none;background:transparent;cursor:pointer;}
 .nav button span:first-child{font-size:20px;display:block;}
 .nav button span:last-child{font-size:9px;color:#999;margin-top:2px;display:block;}
 .nav button.active span:last-child{color:#C0392B;}
 .toast{position:fixed;top:0;left:50%;transform:translateX(-50%);background:#1D9E75;color:#fff;padding:10px 20px;border-radius:0 0 10px 10px;z-index:999;font-size:13px;font-weight:600;max-width:440px;width:100%;text-align:center;display:none;}
-.divider{text-align:center;color:#bbb;font-size:12px;margin:8px 0 12px;}
-.confirm-opcoes{display:flex;gap:8px;margin-bottom:12px;}
-.confirm-opcoes button{flex:1;padding:14px 8px;border-radius:10px;border:2px solid #C0392B;background:#fff;color:#C0392B;font-size:14px;font-weight:700;cursor:pointer;}
+/* prato selecionado card */
+.prato-sel-card{background:#fff0ef;border:2px solid #C0392B;border-radius:12px;padding:14px;margin-bottom:14px;}
+.prato-sel-card .psc-num{font-size:11px;font-weight:600;color:#C0392B;}
+.prato-sel-card .psc-nome{font-size:16px;font-weight:700;color:#222;margin-top:2px;}
+/* quantidade grande */
+.qty-display{text-align:center;margin-bottom:16px;}
+.qty-big{font-size:72px;font-weight:700;color:#C0392B;line-height:1;}
+.qty-lbl{font-size:13px;color:#888;margin-top:4px;}
+.qty-sub{font-size:12px;color:#aaa;margin-top:2px;}
+.cam-area{background:#f7f7f7;border-radius:12px;padding:24px 20px;text-align:center;border:2px dashed #ccc;margin-bottom:14px;cursor:pointer;}
+.cam-area.loading{border-color:#C0392B;background:#fff0ef;}
+/* login */
 #login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:#C0392B;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;padding:30px;}
 #login-screen h1{color:#fff;font-size:28px;font-weight:700;margin-bottom:6px;}
 #login-screen p{color:rgba(255,255,255,.8);font-size:13px;margin-bottom:40px;}
@@ -70,9 +68,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .login-perfil{display:flex;gap:10px;margin-bottom:20px;}
 .login-perfil button{flex:1;padding:12px;border-radius:10px;border:2px solid #e0e0e0;background:#f7f7f7;font-size:13px;font-weight:600;cursor:pointer;color:#333;}
 .login-perfil button.sel{border-color:#C0392B;background:#fff0ef;color:#C0392B;}
+.ic-fin{display:flex;gap:8px;margin-top:10px;}
+.ic-fin-box{flex:1;background:#f7f7f7;border-radius:8px;padding:8px;text-align:center;}
+.ic-fin-box .v{font-size:13px;font-weight:700;}
+.ic-fin-box .l{font-size:10px;color:#888;margin-top:2px;}
 </style>
 </head>
 <body>
+ 
 <div id="login-screen">
   <h1>🍱 CDC Fit</h1>
   <p>Sistema de Gestão de Produção</p>
@@ -104,6 +107,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
   <div class="toast" id="toast"></div>
  
+  <!-- HOME -->
   <div id="s-home" class="content">
     <span class="sec">Produção de hoje</span>
     <div class="cards2">
@@ -119,65 +123,82 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div id="h-registros"></div>
   </div>
  
+  <!-- PRODUÇÃO — novo fluxo -->
   <div id="s-producao" class="content" style="display:none">
-    <div id="p-step1">
-      <span class="sec">📸 Fotografar bandeja</span>
-      <div class="cam-area" onclick="document.getElementById('fileinput').click()">
-        <div style="font-size:38px">📸</div>
-        <div style="font-size:15px;font-weight:600;margin-top:8px;color:#222">Tocar para fotografar</div>
-        <div style="font-size:12px;color:#888;margin-top:4px">A IA conta e identifica automaticamente</div>
-      </div>
-      <input id="fileinput" type="file" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(this)">
-      <div class="divider">— ou selecione direto —</div>
-      <span class="sec">Favoritos</span>
+ 
+    <!-- PASSO 1: selecionar prato -->
+    <div id="p-passo1">
+      <span class="sec">Passo 1 — Qual prato é esse?</span>
+      <span class="sec" style="margin-top:0">Favoritos</span>
       <div class="fav-grid" id="fav-grid"></div>
       <span class="sec">Todos os pratos</span>
-      <select class="select-prato" onchange="selecionarPrato(this.value);this.value=''"><option value="">Selecionar prato...</option></select>
+      <select class="select-prato" id="sel-todos" onchange="selecionarPrato(this.value);this.value=''">
+        <option value="">Selecionar prato...</option>
+      </select>
     </div>
  
-    <div id="p-loading" style="display:none">
-      <div style="text-align:center;padding:24px">
-        <div style="font-size:36px;margin-bottom:12px">🔍</div>
-        <div style="font-size:16px;font-weight:600;color:#333">Analisando bandeja...</div>
-        <div style="font-size:12px;color:#888;margin-top:6px">Contando embalagens e identificando prato</div>
+    <!-- PASSO 2: foto para contar -->
+    <div id="p-passo2" style="display:none">
+      <div class="prato-sel-card" id="prato-sel-card">
+        <div class="psc-num" id="psc-num">Nº —</div>
+        <div class="psc-nome" id="psc-nome">—</div>
       </div>
+ 
+      <span class="sec">Passo 2 — Fotografe a bandeja</span>
+      <div class="cam-area" id="cam-area" onclick="document.getElementById('fileinput').click()">
+        <div style="font-size:36px" id="cam-icon">📸</div>
+        <div style="font-size:14px;font-weight:600;margin-top:8px;color:#222" id="cam-title">Tocar para fotografar</div>
+        <div style="font-size:12px;color:#888;margin-top:4px" id="cam-sub">A IA conta as embalagens automaticamente</div>
+      </div>
+      <input id="fileinput" type="file" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(this)">
+ 
+      <button class="btn btn-gray" onclick="voltarPasso1()" style="margin-top:4px">↩ Trocar prato</button>
     </div>
  
-    <div id="p-step2" style="display:none">
-      <img id="preview-img" style="display:none;width:100%;border-radius:10px;margin-bottom:14px;max-height:200px;object-fit:cover;">
-      <div id="p-confirmacao" style="display:none">
-        <div style="font-size:13px;font-weight:600;color:#555;margin-bottom:8px">É ravioli — qual o recheio?</div>
-        <div class="confirm-opcoes">
-          <button onclick="confirmarRavioli('23')">🥩 Carne<br><span style="font-size:10px;font-weight:400">Nº 23</span></button>
-          <button onclick="confirmarRavioli('25')">🧀 Queijo<br><span style="font-size:10px;font-weight:400">Nº 25</span></button>
+    <!-- PASSO 3: confirmar quantidade -->
+    <div id="p-passo3" style="display:none">
+      <div class="prato-sel-card">
+        <div class="psc-num" id="psc-num3">Nº —</div>
+        <div class="psc-nome" id="psc-nome3">—</div>
+      </div>
+ 
+      <img id="preview-img" style="width:100%;border-radius:10px;margin-bottom:14px;max-height:180px;object-fit:cover;display:none;">
+ 
+      <span class="sec">Passo 3 — Confirme a quantidade</span>
+      <div class="qty-display">
+        <div class="qty-big" id="qty-big">0</div>
+        <div class="qty-lbl">embalagens contadas pela IA</div>
+        <div class="qty-sub">Toque no número para corrigir se necessário</div>
+      </div>
+ 
+      <input type="number" min="1" id="qty-input"
+        style="width:100%;padding:14px;border-radius:8px;border:1px solid #ddd;font-size:28px;text-align:center;font-weight:700;color:#222;margin-bottom:12px;display:none"
+        oninput="atualizarQtyManual(this.value)">
+ 
+      <button style="background:none;border:none;color:#888;font-size:12px;cursor:pointer;width:100%;margin-bottom:14px;text-decoration:underline"
+        onclick="toggleEditQty()" id="btn-editar-qty">✏️ Editar quantidade</button>
+ 
+      <div id="resumo-financeiro" style="display:none">
+        <div class="ic-fin">
+          <div class="ic-fin-box"><div class="v" style="color:#C0392B" id="r-custo">R$ 0</div><div class="l">Custo</div></div>
+          <div class="ic-fin-box"><div class="v" style="color:#1D9E75" id="r-rec">R$ 0</div><div class="l">Receita</div></div>
+          <div class="ic-fin-box"><div class="v" style="color:#1a6fb5" id="r-luc">R$ 0</div><div class="l">Lucro</div></div>
         </div>
       </div>
-      <span class="sec">✏️ Confirme — prato e quantidade</span>
-      <div id="itens-lista"></div>
-      <button class="btn btn-blue" onclick="adicionarItem()">+ Adicionar outro prato</button>
-      <div id="resumo-area" style="display:none">
-        <span class="sec">📊 Resumo</span>
-        <div class="resumo-box">
-          <div style="font-size:13px;font-weight:600;color:#155e45;margin-bottom:8px">Total a lançar</div>
-          <div id="resumo-linhas"></div>
-          <div style="border-top:1px solid #c3ead8;margin:8px 0;padding-top:8px;display:flex;justify-content:space-between;font-size:13px;font-weight:700"><span>Total</span><span id="res-tot">0</span></div>
-          <div style="display:flex;gap:8px">
-            <div class="ic-fin-box"><div class="v" style="color:#C0392B" id="res-custo">R$ 0</div><div class="l">Custo</div></div>
-            <div class="ic-fin-box"><div class="v" style="color:#1D9E75" id="res-rec">R$ 0</div><div class="l">Receita</div></div>
-            <div class="ic-fin-box"><div class="v" style="color:#1a6fb5" id="res-luc">R$ 0</div><div class="l">Lucro</div></div>
-          </div>
-        </div>
-      </div>
-      <button class="btn btn-green" onclick="confirmar()">✓ Confirmar e lançar no estoque</button>
+ 
+      <button class="btn btn-green" id="btn-confirmar" onclick="confirmar()" style="margin-top:14px">✓ Confirmar e lançar no estoque</button>
+      <button class="btn btn-blue" onclick="voltarPasso2()">📸 Tirar outra foto</button>
       <button class="btn btn-gray" onclick="resetProd()">↩ Cancelar</button>
     </div>
   </div>
  
+  <!-- ESTOQUE -->
   <div id="s-estoque" class="content" style="display:none">
     <span class="sec">Todos os pratos</span>
     <div id="estoque-lista"></div>
   </div>
  
+  <!-- FINANCEIRO -->
   <div id="s-financeiro" class="content" style="display:none">
     <span class="sec" id="fin-data"></span>
     <div class="cards2">
@@ -206,58 +227,54 @@ const SENHAS={funcionario:'1234',gestor:'9999'};
 let perfilAtual='funcionario',perfilSelecionado='funcionario';
  
 function selecionarPerfil(p){perfilSelecionado=p;document.getElementById('btn-func').classList.toggle('sel',p==='funcionario');document.getElementById('btn-gest').classList.toggle('sel',p==='gestor');}
- 
 function fazerLogin(){
-  const senha=document.getElementById('login-senha').value;
-  const err=document.getElementById('login-err');
-  if(senha===SENHAS[perfilSelecionado]){
+  const s=document.getElementById('login-senha').value,err=document.getElementById('login-err');
+  if(s===SENHAS[perfilSelecionado]){
     perfilAtual=perfilSelecionado;
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='block';
     document.getElementById('perfil-badge').textContent=perfilAtual==='gestor'?'👑 Gestor':'👷 Funcionário';
     document.getElementById('nav-financeiro').style.display=perfilAtual==='gestor'?'':'none';
-    err.style.display='none';
-    renderHome();
+    err.style.display='none';renderHome();
   }else{err.style.display='block';document.getElementById('login-senha').value='';}
 }
- 
 function sair(){document.getElementById('login-screen').style.display='flex';document.getElementById('app').style.display='none';document.getElementById('login-senha').value='';selecionarPerfil('funcionario');}
  
 const PRODUTOS=[
-  {num:'1',curto:'Carne moída c/ purê abóbora',preco:16.99,custo:9,fav:true,desc:'feijao carioca laranja, arroz branco, carne moida granulada marrom, pure laranja abobora'},
-  {num:'2',curto:'Feijoada magra',preco:16.99,custo:9,fav:true,desc:'feijao preto escuro, arroz branco, farofa amarela granulada, couve verde escura'},
-  {num:'3',curto:'Hambúrguer parmegiana',preco:16.99,custo:9,desc:'hamburguer molho vermelho tomate, pure batata branco, queijo ralado branco'},
-  {num:'4',curto:'Kibe assado c/ legumes',preco:16.99,custo:9,desc:'kibe granulado marrom, cenoura julienne laranja, abobrinha verde julienne'},
-  {num:'5',curto:'Escondidinho carne c/ purê batata',preco:16.99,custo:9,fav:true,desc:'pure batata branco cremoso cobre tudo, queijo ralado amarelo centro'},
-  {num:'6',curto:'Estrogonofe de carne',preco:17.49,custo:9,desc:'arroz branco, cubos batata laranja dourada, molho rose bege carne'},
-  {num:'7',curto:'Picadinho de carne',preco:17.49,custo:9,fav:true,desc:'feijao carioca, arroz branco, carne picadinho molho alaranjado cenoura'},
-  {num:'8',curto:'Pernil c/ arroz e farofa',preco:16.99,custo:9,desc:'feijao carioca, arroz branco, pernil desfiado escuro, farofa esfarelada amarela'},
-  {num:'9',curto:'Isca de frango c/ legumes',preco:16.49,custo:9,fav:true,desc:'feijao carioca, arroz branco, iscas frango douradas, legumes julienne cenoura abobrinha'},
-  {num:'10',curto:'Frango cremoso alho poró',preco:16.49,custo:9,desc:'frango cubos laranja, molho branco cremoso ervas verdes, arroz branco'},
-  {num:'11',curto:'Escondidinho frango c/ purê batata',preco:16.90,custo:9,desc:'pure batata branco amarelado cobre tudo, queijo ralado amarelo vivo por cima'},
-  {num:'12',curto:'Filé frango c/ creme milho',preco:16.99,custo:9,desc:'creme milho amarelo claro, arroz branco, file frango empanado dourado'},
-  {num:'13',curto:'Sobrecoxa assada',preco:16.99,custo:9,desc:'feijao carioca, arroz branco, sobrecoxa frango dourada escura grande, cubos batata'},
-  {num:'14',curto:'Estrogonofe de frango',preco:16.99,custo:9,fav:true,desc:'arroz branco, cubos batata laranja, molho rose alaranjado frango'},
-  {num:'15',curto:'Filé parmegiana',preco:17.49,custo:9,desc:'arroz espalhado no fundo, file empanado por cima, molho tomate vermelho, queijo ralado'},
-  {num:'16',curto:'Lasanha tradicional',preco:18.99,custo:9,desc:'massa em camadas, molho vermelho gratinado, ocupa toda embalagem'},
-  {num:'17',curto:'Panqueca de carne',preco:17.99,custo:9,fav:true,desc:'panqueca enrolada molho laranja pomodoro, queijo ralado branco'},
-  {num:'18',curto:'Panqueca de frango',preco:17.99,custo:9,desc:'panqueca enrolada molho branco cremoso, queijo amarelo ralado'},
-  {num:'19',curto:'Panqueca 3 queijos',preco:17.99,custo:9,desc:'panqueca enrolada molho laranja vibrante, queijo ralado branco'},
-  {num:'20',curto:'Nhoque a bolonhesa',preco:17.90,custo:9,desc:'bolinhas redondas nhoque, molho vermelho bolonhesa, queijo derretido'},
-  {num:'21',curto:'Fusile pesto',preco:17.99,custo:9,fav:true,desc:'macarrao fusile verde pesto, cubos tomate vermelho, sour cream branco centro'},
-  {num:'22',curto:'Lasanha de abobrinha',preco:17.99,custo:9,desc:'massa camadas recheio verde claro abobrinha, queijo gratinado amarelo dourado'},
-  {num:'23',curto:'Ravioli de carne',preco:17.99,custo:9,desc:'massas quadradas ravioli, molho vermelho, queijo ralado'},
-  {num:'25',curto:'Ravioli de queijo',preco:17.99,custo:9,desc:'massas quadradas ravioli, molho vermelho, queijo ralado'},
-  {num:'26',curto:'Isca de patinho c/ brócolis',preco:17.49,custo:9,fav:true,desc:'brocolis verde vibrante, iscas carne patinho marrom, arroz branco, feijao carioca'},
-  {num:'27',curto:'Frango desfiado c/ couve-flor',preco:16.99,custo:9,desc:'arroz branco, frango desfiado alaranjado, couve flor gratinada queijo'},
-  {num:'28',curto:'Salmão c/ penne',preco:22.90,custo:9,desc:'macarrao penne tubular, brocolis verde, cubos tomate, salmao desfiado laranja por cima'},
-  {num:'29',curto:'Salmão desfiado c/ arroz',preco:22.90,custo:9,fav:true,desc:'salmao laranja, arroz com brocolis verde, batata gratinada dourada'},
-  {num:'40',curto:'Frango desfiado c/ brócolis',preco:16.99,custo:9,desc:'frango desfiado alaranjado com tomate, brocolis refogado verde escuro, dois lados'},
-  {num:'41',curto:'Escondidinho low carb abóbora',preco:16.99,custo:9,desc:'pure abobora laranja intenso cobre tudo, queijo ralado branco por cima'},
-  {num:'42',curto:'Hambúrguer c/ brócolis',preco:16.99,custo:9,desc:'hamburguer molho vermelho, brocolis verde, queijo ralado'},
-  {num:'43',curto:'Frango cremoso low carb',preco:16.99,custo:9,desc:'legumes julienne cenoura laranja abobrinha verde, molho branco cremoso ervas'},
-  {num:'50',curto:'Yakissoba de frango',preco:19.99,custo:9,fav:true,desc:'macarrao amarelo fino, repolho roxo, cenoura laranja, frango branco, muito colorido'},
-  {num:'51',curto:'Tilápia molho praiano',preco:20.90,custo:9,fav:true,desc:'peixe tilapia branco, arroz com castanhas picadas, cubos batata dourada'},
+  {num:'1',curto:'Carne moída c/ purê abóbora',preco:16.99,custo:9,fav:true},
+  {num:'2',curto:'Feijoada magra',preco:16.99,custo:9,fav:true},
+  {num:'3',curto:'Hambúrguer parmegiana',preco:16.99,custo:9},
+  {num:'4',curto:'Kibe assado c/ legumes',preco:16.99,custo:9},
+  {num:'5',curto:'Escondidinho carne c/ purê batata',preco:16.99,custo:9,fav:true},
+  {num:'6',curto:'Estrogonofe de carne',preco:17.49,custo:9},
+  {num:'7',curto:'Picadinho de carne',preco:17.49,custo:9,fav:true},
+  {num:'8',curto:'Pernil c/ arroz e farofa',preco:16.99,custo:9},
+  {num:'9',curto:'Isca de frango c/ legumes',preco:16.49,custo:9,fav:true},
+  {num:'10',curto:'Frango cremoso alho poró',preco:16.49,custo:9},
+  {num:'11',curto:'Escondidinho frango c/ purê batata',preco:16.90,custo:9},
+  {num:'12',curto:'Filé frango c/ creme milho',preco:16.99,custo:9},
+  {num:'13',curto:'Sobrecoxa assada',preco:16.99,custo:9},
+  {num:'14',curto:'Estrogonofe de frango',preco:16.99,custo:9,fav:true},
+  {num:'15',curto:'Filé parmegiana',preco:17.49,custo:9},
+  {num:'16',curto:'Lasanha tradicional',preco:18.99,custo:9},
+  {num:'17',curto:'Panqueca de carne',preco:17.99,custo:9,fav:true},
+  {num:'18',curto:'Panqueca de frango',preco:17.99,custo:9},
+  {num:'19',curto:'Panqueca 3 queijos',preco:17.99,custo:9},
+  {num:'20',curto:'Nhoque a bolonhesa',preco:17.90,custo:9},
+  {num:'21',curto:'Fusile pesto',preco:17.99,custo:9,fav:true},
+  {num:'22',curto:'Lasanha de abobrinha',preco:17.99,custo:9},
+  {num:'23',curto:'Ravioli de carne',preco:17.99,custo:9},
+  {num:'25',curto:'Ravioli de queijo',preco:17.99,custo:9},
+  {num:'26',curto:'Isca de patinho c/ brócolis',preco:17.49,custo:9,fav:true},
+  {num:'27',curto:'Frango desfiado c/ couve-flor',preco:16.99,custo:9},
+  {num:'28',curto:'Salmão c/ penne',preco:22.90,custo:9},
+  {num:'29',curto:'Salmão desfiado c/ arroz',preco:22.90,custo:9,fav:true},
+  {num:'40',curto:'Frango desfiado c/ brócolis',preco:16.99,custo:9},
+  {num:'41',curto:'Escondidinho low carb abóbora',preco:16.99,custo:9},
+  {num:'42',curto:'Hambúrguer c/ brócolis',preco:16.99,custo:9},
+  {num:'43',curto:'Frango cremoso low carb',preco:16.99,custo:9},
+  {num:'50',curto:'Yakissoba de frango',preco:19.99,custo:9,fav:true},
+  {num:'51',curto:'Tilápia molho praiano',preco:20.90,custo:9,fav:true},
 ];
  
 const EMIN={default:15,'28':10,'29':10,'50':10,'51':10};
@@ -266,7 +283,8 @@ const EST0={'6':39,'17':32,'18':25,'21':26,'22':20,'23':25,'25':22,'26':55,'27':
 let estoque=JSON.parse(localStorage.getItem('cdc-est')||JSON.stringify(EST0));
 let prod=JSON.parse(localStorage.getItem('cdc-prod')||'[]');
 prod=prod.filter(p=>new Date(p.ts).toDateString()===new Date().toDateString());
-let itens=[],itemCounter=0,ravioliId=null;
+ 
+let pratoAtual=null,qtyAtual=0,editandoQty=false;
  
 function salvarEst(){localStorage.setItem('cdc-est',JSON.stringify(estoque));}
 function salvarProd(){localStorage.setItem('cdc-prod',JSON.stringify(prod));}
@@ -286,149 +304,143 @@ function goTo(s){
 }
  
 function resetProd(){
-  itens=[];itemCounter=0;ravioliId=null;
-  document.getElementById('p-step1').style.display='block';
-  document.getElementById('p-loading').style.display='none';
-  document.getElementById('p-step2').style.display='none';
+  pratoAtual=null;qtyAtual=0;editandoQty=false;
+  document.getElementById('p-passo1').style.display='block';
+  document.getElementById('p-passo2').style.display='none';
+  document.getElementById('p-passo3').style.display='none';
   document.getElementById('preview-img').style.display='none';
-  document.getElementById('p-confirmacao').style.display='none';
-  document.getElementById('itens-lista').innerHTML='';
-  document.getElementById('resumo-area').style.display='none';
+  document.getElementById('fileinput').value='';
+  // reset cam area
+  document.getElementById('cam-area').className='cam-area';
+  document.getElementById('cam-icon').textContent='📸';
+  document.getElementById('cam-title').textContent='Tocar para fotografar';
+  document.getElementById('cam-sub').textContent='A IA conta as embalagens automaticamente';
+  // reset favoritos
+  document.querySelectorAll('.fav-btn').forEach(b=>b.classList.remove('sel'));
 }
  
-function mostrarStep2(){
-  document.getElementById('p-step1').style.display='none';
-  document.getElementById('p-loading').style.display='none';
-  document.getElementById('p-step2').style.display='block';
-}
- 
-function optsHtml(sel){return '<option value="">Selecionar prato...</option>'+PRODUTOS.map(p=>'<option value="'+p.num+'"'+(p.num===sel?' selected':'')+'>Nº '+p.num+' — '+p.curto+'</option>').join('');}
- 
-function adicionarItem(pNum,qty){itemCounter++;itens.push({id:'item-'+itemCounter,pratoNum:pNum||'',qty:qty||0});mostrarStep2();renderItens();}
- 
-function renderItens(){
-  document.getElementById('itens-lista').innerHTML=itens.map((item,idx)=>{
-    const p=item.pratoNum?getPrato(item.pratoNum):null;const fin=p&&item.qty>0;
-    return `<div class="item-card" id="${item.id}">
-      <div class="ic-header"><div class="ic-title">Prato ${idx+1}</div><button class="ic-del" onclick="removerItem('${item.id}')">✕</button></div>
-      <div class="ic-row">
-        <select onchange="atualizarPrato('${item.id}',this.value)">${optsHtml(item.pratoNum)}</select>
-        <input type="number" min="1" placeholder="Qtd" value="${item.qty>0?item.qty:''}" oninput="atualizarQty('${item.id}',this.value)">
-      </div>
-      ${fin?`<div class="ic-fin">
-        <div class="ic-fin-box"><div class="v" style="color:#C0392B">${brl(item.qty*p.custo)}</div><div class="l">Custo</div></div>
-        <div class="ic-fin-box"><div class="v" style="color:#1D9E75">${brl(item.qty*p.preco)}</div><div class="l">Receita</div></div>
-        <div class="ic-fin-box"><div class="v" style="color:#1a6fb5">${brl(item.qty*(p.preco-p.custo))}</div><div class="l">Lucro</div></div>
-      </div>`:''}
-    </div>`;
-  }).join('');
-  atualizarResumo();
-}
- 
-function atualizarPrato(id,num){const it=itens.find(i=>i.id===id);if(it){it.pratoNum=num;renderItens();}}
-function atualizarQty(id,val){const it=itens.find(i=>i.id===id);if(it){it.qty=parseInt(val)||0;atualizarResumo();}}
-function removerItem(id){itens=itens.filter(i=>i.id!==id);if(!itens.length)resetProd();else renderItens();}
- 
-function atualizarResumo(){
-  const v=itens.filter(i=>i.pratoNum&&i.qty>0);
-  if(!v.length){document.getElementById('resumo-area').style.display='none';return;}
-  document.getElementById('resumo-area').style.display='block';
-  let tQ=0,tC=0,tR=0,tL=0,lin='';
-  v.forEach(item=>{const p=getPrato(item.pratoNum);if(!p)return;tQ+=item.qty;tC+=item.qty*p.custo;tR+=item.qty*p.preco;tL+=item.qty*(p.preco-p.custo);lin+=`<div class="resumo-row"><span>${p.curto}</span><span style="font-weight:600">${item.qty} un</span></div>`;});
-  document.getElementById('resumo-linhas').innerHTML=lin;
-  document.getElementById('res-tot').textContent=tQ;
-  document.getElementById('res-custo').textContent=brl(tC);
-  document.getElementById('res-rec').textContent=brl(tR);
-  document.getElementById('res-luc').textContent=brl(tL);
-}
- 
-function confirmar(){
-  const v=itens.filter(i=>i.pratoNum&&i.qty>0);
-  if(!v.length){toast('Adicione pelo menos um prato com quantidade!');return;}
-  let tot=0;
-  v.forEach(item=>{const p=getPrato(item.pratoNum);if(!p)return;estoque[item.pratoNum]=(estoque[item.pratoNum]||0)+item.qty;prod.push({num:p.num,curto:p.curto,preco:p.preco,custo:p.custo,qty:item.qty,ts:new Date().toISOString()});tot+=item.qty;});
-  salvarEst();salvarProd();
-  toast(tot+' marmitas lançadas!');
-  resetProd();goTo('home');
-}
- 
-function confirmarRavioli(num){
-  document.getElementById('p-confirmacao').style.display='none';
-  if(ravioliId){const it=itens.find(i=>i.id===ravioliId);if(it)it.pratoNum=num;ravioliId=null;renderItens();}
+function voltarPasso1(){resetProd();}
+function voltarPasso2(){
+  document.getElementById('p-passo3').style.display='none';
+  document.getElementById('p-passo2').style.display='block';
+  document.getElementById('preview-img').style.display='none';
+  document.getElementById('fileinput').value='';
+  document.getElementById('cam-area').className='cam-area';
+  document.getElementById('cam-icon').textContent='📸';
+  document.getElementById('cam-title').textContent='Tocar para fotografar novamente';
+  document.getElementById('cam-sub').textContent='A IA vai recontá las embalagens';
 }
  
 function selecionarPrato(num){
-  const p=PRODUTOS.find(x=>x.num===num);if(!p)return;
-  itemCounter++;itens.push({id:'item-'+itemCounter,pratoNum:p.num,qty:0});
-  mostrarStep2();renderItens();
+  const p=getPrato(num);if(!p)return;
+  pratoAtual=p;
+  // destaca favorito
+  document.querySelectorAll('.fav-btn').forEach(b=>b.classList.remove('sel'));
+  const btn=document.querySelector(`.fav-btn[data-num="${num}"]`);
+  if(btn)btn.classList.add('sel');
+  // mostra passo 2
+  document.getElementById('p-passo1').style.display='none';
+  document.getElementById('p-passo2').style.display='block';
+  document.getElementById('psc-num').textContent='Nº '+p.num;
+  document.getElementById('psc-nome').textContent=p.curto;
 }
  
-// Reduz imagem antes de enviar
+function toggleEditQty(){
+  editandoQty=!editandoQty;
+  const inp=document.getElementById('qty-input');
+  const big=document.getElementById('qty-big');
+  const btn=document.getElementById('btn-editar-qty');
+  if(editandoQty){inp.style.display='block';inp.value=qtyAtual;inp.focus();big.style.display='none';btn.textContent='✓ Usar esse valor';}
+  else{const v=parseInt(inp.value)||0;if(v>0){qtyAtual=v;big.textContent=v;atualizarFinanceiro();}inp.style.display='none';big.style.display='block';btn.textContent='✏️ Editar quantidade';}
+}
+ 
+function atualizarQtyManual(v){qtyAtual=parseInt(v)||0;atualizarFinanceiro();}
+ 
+function atualizarFinanceiro(){
+  if(!pratoAtual||qtyAtual<=0){document.getElementById('resumo-financeiro').style.display='none';return;}
+  document.getElementById('resumo-financeiro').style.display='block';
+  document.getElementById('r-custo').textContent=brl(qtyAtual*pratoAtual.custo);
+  document.getElementById('r-rec').textContent=brl(qtyAtual*pratoAtual.preco);
+  document.getElementById('r-luc').textContent=brl(qtyAtual*(pratoAtual.preco-pratoAtual.custo));
+}
+ 
+function mostrarPasso3(qty){
+  qtyAtual=qty;editandoQty=false;
+  document.getElementById('p-passo2').style.display='none';
+  document.getElementById('p-passo3').style.display='block';
+  document.getElementById('psc-num3').textContent='Nº '+pratoAtual.num;
+  document.getElementById('psc-nome3').textContent=pratoAtual.curto;
+  document.getElementById('qty-big').textContent=qty;
+  document.getElementById('qty-big').style.display='block';
+  document.getElementById('qty-input').style.display='none';
+  document.getElementById('btn-editar-qty').textContent='✏️ Editar quantidade';
+  atualizarFinanceiro();
+}
+ 
+function confirmar(){
+  if(!pratoAtual||qtyAtual<=0){toast('Quantidade inválida!');return;}
+  estoque[pratoAtual.num]=(estoque[pratoAtual.num]||0)+qtyAtual;
+  prod.push({num:pratoAtual.num,curto:pratoAtual.curto,preco:pratoAtual.preco,custo:pratoAtual.custo,qty:qtyAtual,ts:new Date().toISOString()});
+  salvarEst();salvarProd();
+  toast(qtyAtual+'× Prato '+pratoAtual.num+' — '+pratoAtual.curto+' lançado!');
+  resetProd();goTo('home');
+}
+ 
 async function resizeImage(file){
   return new Promise((resolve)=>{
     const img=new Image();
     const url=URL.createObjectURL(file);
     img.onload=()=>{
-      const MAX=900;
-      let w=img.width,h=img.height;
-      if(w>MAX||h>MAX){
-        if(w>h){h=Math.round(h*MAX/w);w=MAX;}
-        else{w=Math.round(w*MAX/h);h=MAX;}
-      }
-      const canvas=document.createElement('canvas');
-      canvas.width=w;canvas.height=h;
+      const MAX=900;let w=img.width,h=img.height;
+      if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+      const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
       canvas.getContext('2d').drawImage(img,0,0,w,h);
       URL.revokeObjectURL(url);
       resolve(canvas.toDataURL('image/jpeg',0.75).split(',')[1]);
     };
-    img.onerror=()=>resolve(null);
-    img.src=url;
+    img.onerror=()=>resolve(null);img.src=url;
   });
 }
  
 async function handlePhoto(input){
   const file=input.files[0];if(!file)return;
+  // mostrar preview
   const url=URL.createObjectURL(file);
   document.getElementById('preview-img').src=url;
-  document.getElementById('p-step1').style.display='none';
-  document.getElementById('p-loading').style.display='block';
+  // loading state
+  document.getElementById('cam-area').className='cam-area loading';
+  document.getElementById('cam-icon').textContent='🔍';
+  document.getElementById('cam-title').textContent='Contando embalagens...';
+  document.getElementById('cam-sub').textContent='Aguarde um momento';
   try{
     const b64=await resizeImage(file);
-    if(!b64)throw new Error('Erro ao processar imagem');
-    const descricoes=PRODUTOS.map(p=>'Prato '+p.num+' ('+p.curto+'): '+p.desc).join('\n');
+    if(!b64)throw new Error('erro resize');
     const resp=await fetch('/api/analisar',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({imagem:b64,tipo:'image/jpeg',descricoes})
+      body:JSON.stringify({imagem:b64,tipo:'image/jpeg',modoContagem:true})
     });
     const data=await resp.json();
-    document.getElementById('p-loading').style.display='none';
+    const qty=data.quantidade||0;
     document.getElementById('preview-img').style.display='block';
-    itens=[];itemCounter=0;ravioliId=null;
-    let temRavioli=false;
-    if(data.pratos&&data.pratos.length>0){
-      data.pratos.forEach(p=>{
-        itemCounter++;const id='item-'+itemCounter;
-        if(p.numero==='RAVIOLI'){temRavioli=true;ravioliId=id;itens.push({id,pratoNum:'23',qty:p.quantidade||0});}
-        else{const found=PRODUTOS.find(x=>x.num===String(p.numero));itens.push({id,pratoNum:found?found.num:'',qty:p.quantidade||0});}
-      });
-    }else{itemCounter++;itens=[{id:'item-'+itemCounter,pratoNum:'',qty:0}];}
-    mostrarStep2();
-    if(temRavioli)document.getElementById('p-confirmacao').style.display='block';
-    renderItens();
+    if(qty>0){
+      mostrarPasso3(qty);
+    }else{
+      // não contou — vai para passo 3 com 0 para editar
+      mostrarPasso3(0);
+      toast('Não consegui contar — edite a quantidade manualmente');
+    }
   }catch(e){
-    document.getElementById('p-loading').style.display='none';
     document.getElementById('preview-img').style.display='block';
-    itemCounter++;itens=[{id:'item-'+itemCounter,pratoNum:'',qty:0}];
-    mostrarStep2();renderItens();
-    toast('Erro ao analisar — selecione manualmente');
+    mostrarPasso3(0);
+    toast('Erro ao analisar — edite a quantidade manualmente');
   }
   input.value='';
 }
  
 function initSelects(){
-  document.getElementById('fav-grid').innerHTML=PRODUTOS.filter(p=>p.fav).map(p=>`<button class="fav-btn" onclick="selecionarPrato('${p.num}')"><div class="fav-num">Nº ${p.num}</div><div class="fav-name">${p.curto}</div></button>`).join('');
-  document.querySelectorAll('.select-prato').forEach(s=>s.innerHTML=optsHtml(''));
+  document.getElementById('fav-grid').innerHTML=PRODUTOS.filter(p=>p.fav).map(p=>`<button class="fav-btn" data-num="${p.num}" onclick="selecionarPrato('${p.num}')"><div class="fav-num">Nº ${p.num}</div><div class="fav-name">${p.curto}</div></button>`).join('');
+  document.getElementById('sel-todos').innerHTML='<option value="">Selecionar prato...</option>'+PRODUTOS.map(p=>`<option value="${p.num}">Nº ${p.num} — ${p.curto}</option>`).join('');
 }
  
 function renderHome(){
