@@ -6,70 +6,108 @@
 <title>CDC Fit</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff;min-height:100vh;}
-#app{max-width:440px;margin:0 auto;background:#fff;min-height:100vh;padding-bottom:70px;}
-.top{background:#C0392B;padding:14px 16px;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff;min-height:100vh;font-size:16px;}
+#app{max-width:440px;margin:0 auto;background:#fff;min-height:100vh;padding-bottom:75px;}
+.top{background:#C0392B;padding:16px;}
 .top-row{display:flex;justify-content:space-between;align-items:center;}
-.fab-badge{background:rgba(255,255,255,.2);border-radius:20px;padding:4px 12px;font-size:11px;color:#fff;cursor:pointer;}
-.content{padding:14px;}
-.sec{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px;display:block;}
-.cards2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
-.met{background:#f7f7f7;border-radius:10px;padding:12px;}
-.met .val{font-size:20px;font-weight:700;color:#111;}
-.met .lbl{font-size:11px;color:#888;margin-top:2px;}
-.btn{width:100%;padding:15px;border-radius:10px;border:none;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.fab-badge{background:rgba(255,255,255,.2);border-radius:20px;padding:6px 14px;font-size:13px;color:#fff;cursor:pointer;}
+.content{padding:16px;}
+.sec{font-size:13px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.05em;margin:18px 0 10px;display:block;}
+.cards2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.met{background:#f7f7f7;border-radius:12px;padding:14px;}
+.met .val{font-size:24px;font-weight:700;color:#111;}
+.met .lbl{font-size:13px;color:#888;margin-top:3px;}
+.btn{width:100%;padding:18px;border-radius:12px;border:none;font-size:17px;font-weight:700;cursor:pointer;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px;}
 .btn-red{background:#C0392B;color:#fff;}
 .btn-gray{background:#f0f0f0;color:#333;}
 .btn-green{background:#1D9E75;color:#fff;}
 .btn-xls{background:#1D6F42;color:#fff;}
-.alert-card{border-left:3px solid #E24B4A;background:#fff8f8;border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+.alert-card{border-left:4px solid #E24B4A;background:#fff8f8;border-radius:10px;padding:12px 14px;margin-bottom:10px;}
 .alert-card.warn{border-left-color:#EF9F27;background:#fffbf0;}
-.prod-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;}
+.prod-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f0f0f0;}
 .prod-row:last-child{border:none;}
-.num-circle{width:28px;height:28px;border-radius:50%;background:#C0392B;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.badge{font-size:10px;padding:2px 8px;border-radius:10px;margin-left:6px;}
+.num-circle{width:34px;height:34px;border-radius:50%;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+ 
+/* CORES DOS PRATOS */
+.cor-carne{background:#C0392B;}
+.cor-frango{background:#E67E22;}
+.cor-massa{background:#8E44AD;}
+.cor-peixe{background:#2980B9;}
+.cor-especial{background:#27AE60;}
+ 
+.badge{font-size:12px;padding:3px 10px;border-radius:10px;margin-left:8px;}
 .badge.ok{background:#EAF3DE;color:#2d6a0f;}
 .badge.low{background:#FFF3CD;color:#7a5000;}
 .badge.zero{background:#fde8e8;color:#9b1c1c;}
-.fav-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
-.fav-btn{background:#f7f7f7;border:1px solid #e0e0e0;border-radius:8px;padding:12px 10px;cursor:pointer;text-align:left;width:100%;}
-.fav-btn.sel{border-color:#C0392B;background:#fff0ef;}
-.fav-num{font-size:11px;font-weight:600;color:#888;}
-.fav-name{font-size:12px;color:#222;margin-top:2px;}
-.select-prato{width:100%;padding:11px;border-radius:8px;border:1px solid #ddd;font-size:14px;color:#222;background:#fff;margin-bottom:10px;}
-.prato-sel-card{background:#fff0ef;border:2px solid #C0392B;border-radius:12px;padding:14px;margin-bottom:20px;}
-.psc-num{font-size:11px;font-weight:600;color:#C0392B;}
-.psc-nome{font-size:17px;font-weight:700;color:#222;margin-top:2px;}
-.qty-btns{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
-.qty-btn{padding:30px 10px;border-radius:16px;border:none;cursor:pointer;text-align:center;}
-.qn{font-size:64px;font-weight:700;line-height:1;color:#fff;}
-.ql{font-size:13px;color:rgba(255,255,255,.85);margin-top:6px;}
-.qty-btn-8{background:#C0392B;}
-.qty-btn-9{background:#1a6fb5;}
-.confirmar-box{background:#f0fff8;border:2px solid #1D9E75;border-radius:12px;padding:16px;margin-bottom:14px;text-align:center;}
-.cb-qty{font-size:48px;font-weight:700;color:#C0392B;}
-.cb-nome{font-size:14px;color:#333;margin-top:4px;}
-.ic-fin{display:flex;gap:8px;margin-top:12px;}
-.ic-fin-box{flex:1;background:#fff;border-radius:8px;padding:8px;text-align:center;border:1px solid #eee;}
-.ic-fin-box .v{font-size:13px;font-weight:700;}
-.ic-fin-box .l{font-size:10px;color:#888;margin-top:2px;}
+ 
+/* GRID DE PRATOS — letras grandes */
+.fav-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.fav-btn{border-radius:12px;padding:16px 12px;cursor:pointer;text-align:left;width:100%;border:none;}
+.fav-num{font-size:13px;font-weight:700;color:rgba(255,255,255,.8);}
+.fav-name{font-size:15px;font-weight:700;color:#fff;margin-top:4px;line-height:1.3;}
+ 
+/* Cores dos botões favoritos */
+.fav-btn.cor-carne{background:#C0392B;}
+.fav-btn.cor-frango{background:#E67E22;}
+.fav-btn.cor-massa{background:#8E44AD;}
+.fav-btn.cor-peixe{background:#2980B9;}
+.fav-btn.cor-especial{background:#27AE60;}
+ 
+.select-prato{width:100%;padding:14px;border-radius:10px;border:2px solid #ddd;font-size:16px;color:#222;background:#fff;margin-bottom:12px;}
+.prato-sel-card{border-radius:14px;padding:16px;margin-bottom:20px;}
+.psc-num{font-size:14px;font-weight:700;color:rgba(255,255,255,.8);}
+.psc-nome{font-size:20px;font-weight:700;color:#fff;margin-top:4px;}
+ 
+/* BANDEJAS */
+.bandejas-box{background:#f7f7f7;border-radius:14px;padding:18px;margin-bottom:16px;}
+.bandejas-title{font-size:16px;font-weight:700;color:#333;margin-bottom:14px;}
+.por-bandeja-row{display:flex;gap:10px;margin-bottom:14px;}
+.pb-btn{flex:1;padding:20px 8px;border-radius:12px;border:none;cursor:pointer;text-align:center;background:#e8e8e8;}
+.pb-btn.sel{color:#fff;}
+.pb-btn.sel-8{background:#C0392B;}
+.pb-btn.sel-9{background:#1a6fb5;}
+.pb-num{font-size:42px;font-weight:700;line-height:1;}
+.pb-lbl{font-size:13px;margin-top:4px;opacity:.85;}
+.qtd-bandejas-row{display:flex;align-items:center;gap:12px;}
+.qtd-bandejas-row label{font-size:15px;font-weight:600;color:#555;white-space:nowrap;}
+.qtd-bandejas-row input{flex:1;padding:14px;border-radius:10px;border:2px solid #ddd;font-size:24px;text-align:center;font-weight:700;color:#222;}
+.total-preview{background:#fff;border-radius:10px;padding:14px;margin-top:12px;text-align:center;border:2px solid #ddd;}
+.total-preview .tp-num{font-size:40px;font-weight:700;color:#C0392B;}
+.total-preview .tp-lbl{font-size:14px;color:#888;margin-top:2px;}
+ 
+.outro-qty-box{margin-top:4px;}
+.outro-qty-label{font-size:14px;color:#888;text-align:center;margin-bottom:10px;}
+.outro-qty-row{display:flex;gap:10px;}
+.outro-qty-row input{flex:1;padding:14px;border-radius:10px;border:2px solid #ddd;font-size:20px;text-align:center;font-weight:700;color:#222;}
+.outro-qty-row button{padding:14px 20px;background:#1D9E75;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;}
+ 
+.confirmar-box{border-radius:14px;padding:18px;margin-bottom:14px;text-align:center;}
+.cb-qty{font-size:56px;font-weight:700;color:#fff;}
+.cb-nome{font-size:16px;color:rgba(255,255,255,.9);margin-top:4px;}
+.ic-fin{display:flex;gap:8px;margin-top:14px;}
+.ic-fin-box{flex:1;background:rgba(255,255,255,.2);border-radius:10px;padding:10px;text-align:center;}
+.ic-fin-box .v{font-size:14px;font-weight:700;color:#fff;}
+.ic-fin-box .l{font-size:11px;color:rgba(255,255,255,.8);margin-top:2px;}
+ 
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:#fff;border-top:1px solid #eee;display:flex;z-index:100;}
-.nav button{flex:1;padding:10px 4px;border:none;background:transparent;cursor:pointer;}
-.nav button span:first-child{font-size:20px;display:block;}
-.nav button span:last-child{font-size:9px;color:#999;margin-top:2px;display:block;}
-.nav button.active span:last-child{color:#C0392B;}
-.toast{position:fixed;top:0;left:50%;transform:translateX(-50%);background:#1D9E75;color:#fff;padding:10px 20px;border-radius:0 0 10px 10px;z-index:999;font-size:13px;font-weight:600;max-width:440px;width:100%;text-align:center;display:none;}
+.nav button{flex:1;padding:12px 4px;border:none;background:transparent;cursor:pointer;}
+.nav button span:first-child{font-size:22px;display:block;}
+.nav button span:last-child{font-size:11px;color:#999;margin-top:2px;display:block;}
+.nav button.active span:last-child{color:#C0392B;font-weight:700;}
+ 
+.toast{position:fixed;top:0;left:50%;transform:translateX(-50%);background:#1D9E75;color:#fff;padding:12px 20px;border-radius:0 0 12px 12px;z-index:999;font-size:15px;font-weight:700;max-width:440px;width:100%;text-align:center;display:none;}
+ 
 #login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:#C0392B;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;padding:30px;}
-#login-screen h1{color:#fff;font-size:28px;font-weight:700;margin-bottom:6px;}
-#login-screen p{color:rgba(255,255,255,.8);font-size:13px;margin-bottom:40px;}
-.login-box{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:320px;}
-.login-label{font-size:12px;font-weight:600;color:#888;display:block;margin-bottom:4px;}
-.login-perfil{display:flex;gap:10px;margin-bottom:20px;}
-.login-perfil button{flex:1;padding:12px;border-radius:10px;border:2px solid #e0e0e0;background:#f7f7f7;font-size:13px;font-weight:600;cursor:pointer;color:#333;}
+#login-screen h1{color:#fff;font-size:32px;font-weight:700;margin-bottom:8px;}
+#login-screen p{color:rgba(255,255,255,.8);font-size:15px;margin-bottom:40px;}
+.login-box{background:#fff;border-radius:18px;padding:28px;width:100%;max-width:340px;}
+.login-label{font-size:14px;font-weight:700;color:#888;display:block;margin-bottom:6px;}
+.login-perfil{display:flex;gap:10px;margin-bottom:22px;}
+.login-perfil button{flex:1;padding:14px;border-radius:12px;border:2px solid #e0e0e0;background:#f7f7f7;font-size:15px;font-weight:700;cursor:pointer;color:#333;}
 .login-perfil button.sel{border-color:#C0392B;background:#fff0ef;color:#C0392B;}
-.login-senha{width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;font-size:22px;text-align:center;letter-spacing:8px;margin-bottom:16px;color:#222;}
-.login-btn{width:100%;padding:14px;background:#C0392B;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;}
-.login-err{font-size:12px;color:#C0392B;text-align:center;margin-top:8px;display:none;}
+.login-senha{width:100%;padding:14px;border-radius:10px;border:2px solid #ddd;font-size:26px;text-align:center;letter-spacing:10px;margin-bottom:18px;color:#222;}
+.login-btn{width:100%;padding:16px;background:#C0392B;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;cursor:pointer;}
+.login-err{font-size:14px;color:#C0392B;text-align:center;margin-top:10px;display:none;}
 </style>
 </head>
 <body>
@@ -94,8 +132,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="top">
     <div class="top-row">
       <div>
-        <div style="font-size:18px;font-weight:600;color:#fff">CDC Fit</div>
-        <div style="font-size:11px;opacity:.75;color:#fff;margin-top:2px" id="topdate"></div>
+        <div style="font-size:20px;font-weight:700;color:#fff">CDC Fit</div>
+        <div style="font-size:13px;opacity:.75;color:#fff;margin-top:2px" id="topdate"></div>
       </div>
       <div style="display:flex;gap:8px">
         <div class="fab-badge" id="perfil-badge">Funcionário</div>
@@ -105,6 +143,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
   <div class="toast" id="toast"></div>
  
+  <!-- HOME -->
   <div id="s-home" class="content">
     <span class="sec">Produção de hoje</span>
     <div class="cards2">
@@ -120,52 +159,87 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div id="h-registros"></div>
   </div>
  
+  <!-- PRODUÇÃO -->
   <div id="s-producao" class="content" style="display:none">
+ 
+    <!-- PASSO 1: escolher prato -->
     <div id="p-passo1">
       <span class="sec">Passo 1 — Qual prato?</span>
       <div class="fav-grid" id="fav-grid"></div>
       <span class="sec">Todos os pratos</span>
       <select class="select-prato" id="sel-todos"><option value="">Selecionar prato...</option></select>
     </div>
+ 
+    <!-- PASSO 2: bandejas -->
     <div id="p-passo2" style="display:none">
-      <div class="prato-sel-card">
+      <div class="prato-sel-card" id="prato-card">
         <div class="psc-num" id="psc-num">Nº —</div>
         <div class="psc-nome" id="psc-nome">—</div>
       </div>
-      <span class="sec">Passo 2 — Quantas embalagens?</span>
-      <div class="qty-btns">
-        <button class="qty-btn qty-btn-8" id="qbtn-8"><div class="qn">8</div><div class="ql">embalagens</div></button>
-        <button class="qty-btn qty-btn-9" id="qbtn-9"><div class="qn">9</div><div class="ql">embalagens</div></button>
+ 
+      <div class="bandejas-box">
+        <div class="bandejas-title">Por bandeja — quantas embalagens?</div>
+        <div class="por-bandeja-row">
+          <button class="pb-btn" id="pb8">
+            <div class="pb-num" style="color:#333">8</div>
+            <div class="pb-lbl" style="color:#666">embalagens</div>
+          </button>
+          <button class="pb-btn" id="pb9">
+            <div class="pb-num" style="color:#333">9</div>
+            <div class="pb-lbl" style="color:#666">embalagens</div>
+          </button>
+        </div>
+ 
+        <div class="qtd-bandejas-row">
+          <label>Nº de bandejas:</label>
+          <input type="number" min="1" id="num-bandejas" placeholder="0">
+        </div>
+ 
+        <div class="total-preview">
+          <div class="tp-num" id="total-preview">0</div>
+          <div class="tp-lbl">marmitas no total</div>
+        </div>
       </div>
-      <div style="text-align:center;margin-bottom:12px;color:#888;font-size:13px">— ou outra quantidade —</div>
-      <div style="display:flex;gap:8px;margin-bottom:10px">
-        <input type="number" min="1" id="qty-outro" placeholder="Quantidade..." style="flex:1;padding:13px;border-radius:8px;border:1px solid #ddd;font-size:18px;text-align:center;font-weight:700;color:#222">
-        <button id="btn-ok-qty" style="padding:13px 18px;background:#1D9E75;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer">OK</button>
+ 
+      <div class="outro-qty-box">
+        <div class="outro-qty-label">— ou informe a quantidade total diretamente —</div>
+        <div class="outro-qty-row">
+          <input type="number" min="1" id="qty-direto" placeholder="Total de marmitas...">
+          <button id="btn-ok-direto">OK</button>
+        </div>
       </div>
-      <button class="btn btn-gray" id="btn-trocar-prato">↩ Trocar prato</button>
+ 
+      <div style="margin-top:16px">
+        <button class="btn btn-green" id="btn-avancar">Avançar →</button>
+        <button class="btn btn-gray" id="btn-trocar-prato">↩ Trocar prato</button>
+      </div>
     </div>
+ 
+    <!-- PASSO 3: confirmar -->
     <div id="p-passo3" style="display:none">
       <span class="sec">Passo 3 — Confirme</span>
-      <div class="confirmar-box">
+      <div class="confirmar-box" id="confirmar-card">
         <div class="cb-qty" id="cb-qty">0</div>
         <div class="cb-nome" id="cb-nome">—</div>
         <div class="ic-fin">
-          <div class="ic-fin-box"><div class="v" style="color:#C0392B" id="cf-custo">R$ 0</div><div class="l">Custo</div></div>
-          <div class="ic-fin-box"><div class="v" style="color:#1D9E75" id="cf-rec">R$ 0</div><div class="l">Receita</div></div>
-          <div class="ic-fin-box"><div class="v" style="color:#1a6fb5" id="cf-luc">R$ 0</div><div class="l">Lucro</div></div>
+          <div class="ic-fin-box"><div class="v" id="cf-custo">R$ 0</div><div class="l">Custo</div></div>
+          <div class="ic-fin-box"><div class="v" id="cf-rec">R$ 0</div><div class="l">Receita</div></div>
+          <div class="ic-fin-box"><div class="v" id="cf-luc">R$ 0</div><div class="l">Lucro</div></div>
         </div>
       </div>
       <button class="btn btn-green" id="btn-confirmar">✓ Confirmar e lançar no estoque</button>
-      <button class="btn btn-gray" id="btn-corrigir-qty">↩ Corrigir quantidade</button>
+      <button class="btn btn-gray" id="btn-corrigir">↩ Corrigir</button>
       <button class="btn btn-gray" id="btn-cancelar">✕ Cancelar</button>
     </div>
   </div>
  
+  <!-- ESTOQUE -->
   <div id="s-estoque" class="content" style="display:none">
     <span class="sec">Todos os pratos</span>
     <div id="estoque-lista"></div>
   </div>
  
+  <!-- FINANCEIRO -->
   <div id="s-financeiro" class="content" style="display:none">
     <span class="sec" id="fin-data"></span>
     <div class="cards2">
@@ -179,7 +253,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div id="fn-pratos"></div>
     <span class="sec">Preços — favoritos</span>
     <div id="fn-tabela"></div>
-    <span class="sec">Exportar para Bling</span>
+    <span class="sec">Exportar</span>
     <button class="btn btn-xls" id="btn-xls">📊 Baixar relatório do dia (.xls)</button>
   </div>
  
@@ -192,10 +266,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
  
 <script>
-// ===== DADOS =====
 var SENHAS = {funcionario:'1234', gestor:'9999'};
 var perfilAtual = 'funcionario';
 var perfilSel = 'funcionario';
+ 
+// Cor por categoria
+var CORES = {
+  '1':'carne','2':'carne','3':'carne','4':'carne','5':'carne','6':'carne','7':'carne','8':'carne','26':'carne','41':'carne','42':'carne',
+  '9':'frango','10':'frango','11':'frango','12':'frango','13':'frango','14':'frango','15':'frango','27':'frango','40':'frango','43':'frango',
+  '16':'massa','17':'massa','18':'massa','19':'massa','20':'massa','21':'massa','22':'massa','23':'massa','25':'massa',
+  '28':'peixe','29':'peixe','50':'especial','51':'peixe',
+  '30':'especial','31':'especial','32':'especial','60':'especial','61':'especial','62':'especial'
+};
+ 
+function getCor(num){ return CORES[num] || 'carne'; }
  
 var PRODUTOS = [
   {num:'1',curto:'Carne moída c/ purê abóbora',preco:16.99,custo:9,fav:true},
@@ -237,154 +321,198 @@ var PRODUTOS = [
 var EMIN = {default:15,'28':10,'29':10,'50':10,'51':10};
 var EST0 = {'6':39,'17':32,'18':25,'21':26,'22':20,'23':25,'25':22,'26':55,'27':28,'28':18,'29':21,'41':21,'50':68,'51':34};
  
-var estoque, prod, pratoAtual, qtyAtual;
+var estoque, prod, pratoAtual, qtyAtual, porBandeja;
  
-function init() {
-  try { estoque = JSON.parse(localStorage.getItem('cdc-est') || JSON.stringify(EST0)); } catch(e) { estoque = JSON.parse(JSON.stringify(EST0)); }
-  try { prod = JSON.parse(localStorage.getItem('cdc-prod') || '[]'); } catch(e) { prod = []; }
-  var hoje = new Date().toDateString();
-  prod = prod.filter(function(p){ return new Date(p.ts).toDateString() === hoje; });
-  pratoAtual = null;
-  qtyAtual = 0;
+function init(){
+  try{ estoque=JSON.parse(localStorage.getItem('cdc-est')||JSON.stringify(EST0)); }catch(e){ estoque=JSON.parse(JSON.stringify(EST0)); }
+  try{ prod=JSON.parse(localStorage.getItem('cdc-prod')||'[]'); }catch(e){ prod=[]; }
+  var hoje=new Date().toDateString();
+  prod=prod.filter(function(p){ return new Date(p.ts).toDateString()===hoje; });
+  pratoAtual=null; qtyAtual=0; porBandeja=0;
 }
  
-function salvarEst(){ try{ localStorage.setItem('cdc-est', JSON.stringify(estoque)); }catch(e){} }
-function salvarProd(){ try{ localStorage.setItem('cdc-prod', JSON.stringify(prod)); }catch(e){} }
-function brl(v){ return 'R$ ' + (+v).toFixed(2).replace('.',','); }
+function salvarEst(){ try{ localStorage.setItem('cdc-est',JSON.stringify(estoque)); }catch(e){} }
+function salvarProd(){ try{ localStorage.setItem('cdc-prod',JSON.stringify(prod)); }catch(e){} }
+function brl(v){ return 'R$ '+(+v).toFixed(2).replace('.',','); }
 function getPrato(num){ for(var i=0;i<PRODUTOS.length;i++){ if(PRODUTOS[i].num===num) return PRODUTOS[i]; } return null; }
  
 function showToast(msg){
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.display = 'block';
-  setTimeout(function(){ t.style.display='none'; }, 3000);
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.style.display='block';
+  setTimeout(function(){ t.style.display='none'; },3000);
 }
  
-// ===== LOGIN =====
-document.getElementById('btn-func').addEventListener('click', function(){
-  perfilSel = 'funcionario';
+// LOGIN
+document.getElementById('btn-func').addEventListener('click',function(){
+  perfilSel='funcionario';
   document.getElementById('btn-func').classList.add('sel');
   document.getElementById('btn-gest').classList.remove('sel');
 });
- 
-document.getElementById('btn-gest').addEventListener('click', function(){
-  perfilSel = 'gestor';
+document.getElementById('btn-gest').addEventListener('click',function(){
+  perfilSel='gestor';
   document.getElementById('btn-gest').classList.add('sel');
   document.getElementById('btn-func').classList.remove('sel');
 });
- 
-document.getElementById('login-btn').addEventListener('click', function(){
-  var senha = document.getElementById('login-senha').value;
-  var err = document.getElementById('login-err');
-  if(senha === SENHAS[perfilSel]){
-    perfilAtual = perfilSel;
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    document.getElementById('perfil-badge').textContent = perfilAtual==='gestor' ? '👑 Gestor' : '👷 Funcionário';
-    document.getElementById('nav-financeiro').style.display = perfilAtual==='gestor' ? '' : 'none';
-    err.style.display = 'none';
-    init();
-    renderHome();
+document.getElementById('login-btn').addEventListener('click',function(){
+  var senha=document.getElementById('login-senha').value;
+  if(senha===SENHAS[perfilSel]){
+    perfilAtual=perfilSel;
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    document.getElementById('perfil-badge').textContent=perfilAtual==='gestor'?'👑 Gestor':'👷 Funcionário';
+    document.getElementById('nav-financeiro').style.display=perfilAtual==='gestor'?'':'none';
+    document.getElementById('login-err').style.display='none';
+    init(); renderHome();
   } else {
-    err.style.display = 'block';
-    document.getElementById('login-senha').value = '';
+    document.getElementById('login-err').style.display='block';
+    document.getElementById('login-senha').value='';
   }
 });
- 
-document.getElementById('login-senha').addEventListener('keydown', function(e){
-  if(e.key === 'Enter') document.getElementById('login-btn').click();
+document.getElementById('login-senha').addEventListener('keydown',function(e){ if(e.key==='Enter') document.getElementById('login-btn').click(); });
+document.getElementById('btn-sair').addEventListener('click',function(){
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-senha').value='';
 });
  
-document.getElementById('btn-sair').addEventListener('click', function(){
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('login-senha').value = '';
-});
- 
-// ===== NAVEGAÇÃO =====
+// NAV
 function goTo(s){
   ['home','producao','estoque','financeiro'].forEach(function(x){
-    document.getElementById('s-'+x).style.display = 'none';
+    document.getElementById('s-'+x).style.display='none';
     document.getElementById('nav-'+x).classList.remove('active');
   });
-  document.getElementById('s-'+s).style.display = 'block';
+  document.getElementById('s-'+s).style.display='block';
   document.getElementById('nav-'+s).classList.add('active');
   if(s==='home') renderHome();
   if(s==='estoque') renderEstoque();
   if(s==='financeiro') renderFinanceiro();
   if(s==='producao') resetProd();
 }
+document.getElementById('nav-home').addEventListener('click',function(){ goTo('home'); });
+document.getElementById('nav-producao').addEventListener('click',function(){ goTo('producao'); });
+document.getElementById('nav-estoque').addEventListener('click',function(){ goTo('estoque'); });
+document.getElementById('nav-financeiro').addEventListener('click',function(){ goTo('financeiro'); });
+document.getElementById('btn-ir-prod').addEventListener('click',function(){ goTo('producao'); });
  
-document.getElementById('nav-home').addEventListener('click', function(){ goTo('home'); });
-document.getElementById('nav-producao').addEventListener('click', function(){ goTo('producao'); });
-document.getElementById('nav-estoque').addEventListener('click', function(){ goTo('estoque'); });
-document.getElementById('nav-financeiro').addEventListener('click', function(){ goTo('financeiro'); });
-document.getElementById('btn-ir-prod').addEventListener('click', function(){ goTo('producao'); });
- 
-// ===== PRODUÇÃO =====
+// PRODUÇÃO
 function resetProd(){
-  pratoAtual = null; qtyAtual = 0;
-  document.getElementById('p-passo1').style.display = 'block';
-  document.getElementById('p-passo2').style.display = 'none';
-  document.getElementById('p-passo3').style.display = 'none';
-  document.getElementById('qty-outro').value = '';
+  pratoAtual=null; qtyAtual=0; porBandeja=0;
+  document.getElementById('p-passo1').style.display='block';
+  document.getElementById('p-passo2').style.display='none';
+  document.getElementById('p-passo3').style.display='none';
+  document.getElementById('num-bandejas').value='';
+  document.getElementById('qty-direto').value='';
+  document.getElementById('total-preview').textContent='0';
+  document.getElementById('pb8').className='pb-btn';
+  document.getElementById('pb8').querySelector('.pb-num').style.color='#333';
+  document.getElementById('pb8').querySelector('.pb-lbl').style.color='#666';
+  document.getElementById('pb9').className='pb-btn';
+  document.getElementById('pb9').querySelector('.pb-num').style.color='#333';
+  document.getElementById('pb9').querySelector('.pb-lbl').style.color='#666';
   initSelects();
 }
  
-function mostrarPasso2(p){
-  pratoAtual = p;
-  document.getElementById('p-passo1').style.display = 'none';
-  document.getElementById('p-passo2').style.display = 'block';
-  document.getElementById('psc-num').textContent = 'Nº ' + p.num;
-  document.getElementById('psc-nome').textContent = p.curto;
+function atualizarTotal(){
+  if(porBandeja>0){
+    var nb=parseInt(document.getElementById('num-bandejas').value)||0;
+    document.getElementById('total-preview').textContent=nb*porBandeja;
+    qtyAtual=nb*porBandeja;
+  }
 }
  
-function mostrarPasso3(){
-  document.getElementById('p-passo2').style.display = 'none';
-  document.getElementById('p-passo3').style.display = 'block';
-  document.getElementById('cb-qty').textContent = qtyAtual;
-  document.getElementById('cb-nome').textContent = 'Prato ' + pratoAtual.num + ' — ' + pratoAtual.curto;
-  document.getElementById('cf-custo').textContent = brl(qtyAtual * pratoAtual.custo);
-  document.getElementById('cf-rec').textContent = brl(qtyAtual * pratoAtual.preco);
-  document.getElementById('cf-luc').textContent = brl(qtyAtual * (pratoAtual.preco - pratoAtual.custo));
-}
+document.getElementById('pb8').addEventListener('click',function(){
+  porBandeja=8;
+  document.getElementById('pb8').className='pb-btn sel sel-8';
+  document.getElementById('pb8').querySelector('.pb-num').style.color='#fff';
+  document.getElementById('pb8').querySelector('.pb-lbl').style.color='rgba(255,255,255,.85)';
+  document.getElementById('pb9').className='pb-btn';
+  document.getElementById('pb9').querySelector('.pb-num').style.color='#333';
+  document.getElementById('pb9').querySelector('.pb-lbl').style.color='#666';
+  atualizarTotal();
+  document.getElementById('num-bandejas').focus();
+});
  
-document.getElementById('qbtn-8').addEventListener('click', function(){ qtyAtual=8; mostrarPasso3(); });
-document.getElementById('qbtn-9').addEventListener('click', function(){ qtyAtual=9; mostrarPasso3(); });
+document.getElementById('pb9').addEventListener('click',function(){
+  porBandeja=9;
+  document.getElementById('pb9').className='pb-btn sel sel-9';
+  document.getElementById('pb9').querySelector('.pb-num').style.color='#fff';
+  document.getElementById('pb9').querySelector('.pb-lbl').style.color='rgba(255,255,255,.85)';
+  document.getElementById('pb8').className='pb-btn';
+  document.getElementById('pb8').querySelector('.pb-num').style.color='#333';
+  document.getElementById('pb8').querySelector('.pb-lbl').style.color='#666';
+  atualizarTotal();
+  document.getElementById('num-bandejas').focus();
+});
  
-document.getElementById('btn-ok-qty').addEventListener('click', function(){
-  var v = parseInt(document.getElementById('qty-outro').value) || 0;
-  if(v > 0){ qtyAtual = v; mostrarPasso3(); }
+document.getElementById('num-bandejas').addEventListener('input',function(){ atualizarTotal(); });
+ 
+document.getElementById('btn-ok-direto').addEventListener('click',function(){
+  var v=parseInt(document.getElementById('qty-direto').value)||0;
+  if(v>0){ qtyAtual=v; mostrarPasso3(); }
   else showToast('Digite uma quantidade válida');
 });
  
-document.getElementById('btn-trocar-prato').addEventListener('click', function(){ resetProd(); });
-document.getElementById('btn-corrigir-qty').addEventListener('click', function(){
-  document.getElementById('p-passo3').style.display = 'none';
-  document.getElementById('p-passo2').style.display = 'block';
+document.getElementById('btn-avancar').addEventListener('click',function(){
+  if(qtyAtual>0) mostrarPasso3();
+  else showToast('Selecione 8 ou 9 e informe o número de bandejas');
 });
-document.getElementById('btn-cancelar').addEventListener('click', function(){ resetProd(); goTo('home'); });
  
-document.getElementById('btn-confirmar').addEventListener('click', function(){
-  if(!pratoAtual || qtyAtual <= 0){ showToast('Quantidade inválida!'); return; }
-  estoque[pratoAtual.num] = (estoque[pratoAtual.num] || 0) + qtyAtual;
-  prod.push({num:pratoAtual.num, curto:pratoAtual.curto, preco:pratoAtual.preco, custo:pratoAtual.custo, qty:qtyAtual, ts:new Date().toISOString()});
+document.getElementById('btn-trocar-prato').addEventListener('click',function(){ resetProd(); });
+document.getElementById('btn-corrigir').addEventListener('click',function(){
+  document.getElementById('p-passo3').style.display='none';
+  document.getElementById('p-passo2').style.display='block';
+});
+document.getElementById('btn-cancelar').addEventListener('click',function(){ resetProd(); goTo('home'); });
+ 
+function mostrarPasso2(p){
+  pratoAtual=p;
+  var cor=getCor(p.num);
+  document.getElementById('p-passo1').style.display='none';
+  document.getElementById('p-passo2').style.display='block';
+  var card=document.getElementById('prato-card');
+  card.className='prato-sel-card cor-'+cor;
+  document.getElementById('psc-num').textContent='Nº '+p.num;
+  document.getElementById('psc-nome').textContent=p.curto;
+  document.getElementById('num-bandejas').value='';
+  document.getElementById('qty-direto').value='';
+  document.getElementById('total-preview').textContent='0';
+  qtyAtual=0; porBandeja=0;
+}
+ 
+function mostrarPasso3(){
+  var cor=getCor(pratoAtual.num);
+  document.getElementById('p-passo2').style.display='none';
+  document.getElementById('p-passo3').style.display='block';
+  var ccard=document.getElementById('confirmar-card');
+  ccard.className='confirmar-box cor-'+cor;
+  document.getElementById('cb-qty').textContent=qtyAtual;
+  document.getElementById('cb-nome').textContent='Prato '+pratoAtual.num+' — '+pratoAtual.curto;
+  document.getElementById('cf-custo').textContent=brl(qtyAtual*pratoAtual.custo);
+  document.getElementById('cf-rec').textContent=brl(qtyAtual*pratoAtual.preco);
+  document.getElementById('cf-luc').textContent=brl(qtyAtual*(pratoAtual.preco-pratoAtual.custo));
+}
+ 
+document.getElementById('btn-confirmar').addEventListener('click',function(){
+  if(!pratoAtual||qtyAtual<=0){ showToast('Quantidade inválida!'); return; }
+  estoque[pratoAtual.num]=(estoque[pratoAtual.num]||0)+qtyAtual;
+  prod.push({num:pratoAtual.num,curto:pratoAtual.curto,preco:pratoAtual.preco,custo:pratoAtual.custo,qty:qtyAtual,ts:new Date().toISOString()});
   salvarEst(); salvarProd();
-  showToast(qtyAtual + '× Prato ' + pratoAtual.num + ' lançado!');
+  showToast(qtyAtual+'x Prato '+pratoAtual.num+' lançado!');
   resetProd(); goTo('home');
 });
  
-// ===== XLS =====
-document.getElementById('btn-xls').addEventListener('click', function(){
+// XLS
+document.getElementById('btn-xls').addEventListener('click',function(){
   if(!prod.length){ showToast('Nenhum registro hoje!'); return; }
-  var agrup = {};
+  var agrup={};
   prod.forEach(function(p){
     if(!agrup[p.num]) agrup[p.num]={num:p.num,curto:p.curto,preco:p.preco,custo:p.custo,qty:0};
-    agrup[p.num].qty += p.qty;
+    agrup[p.num].qty+=p.qty;
   });
-  var csv = 'Nº\tNome\tQtd\tCusto Total\tReceita Total\tLucro Total\n';
+  var csv='Nº\tNome\tQtd\tCusto Total\tReceita Total\tLucro Total\n';
   var tQ=0,tC=0,tR=0,tL=0;
-  Object.values(agrup).forEach(function(p){
+  var vals=Object.keys(agrup).map(function(k){ return agrup[k]; });
+  vals.forEach(function(p){
     var c=p.qty*p.custo,r=p.qty*p.preco,l=p.qty*(p.preco-p.custo);
     tQ+=p.qty;tC+=c;tR+=r;tL+=l;
     csv+=p.num+'\t'+p.curto+'\t'+p.qty+'\t'+c.toFixed(2).replace('.',',')+'\t'+r.toFixed(2).replace('.',',')+'\t'+l.toFixed(2).replace('.',',')+'\n';
@@ -398,58 +526,58 @@ document.getElementById('btn-xls').addEventListener('click', function(){
   showToast('Relatório baixado!');
 });
  
-// ===== SELECTS =====
+// SELECTS
 function initSelects(){
-  var favHtml = '';
+  var favHtml='';
   PRODUTOS.filter(function(p){ return p.fav; }).forEach(function(p){
-    favHtml += '<button class="fav-btn" data-num="'+p.num+'"><div class="fav-num">Nº '+p.num+'</div><div class="fav-name">'+p.curto+'</div></button>';
+    var cor=getCor(p.num);
+    favHtml+='<button class="fav-btn cor-'+cor+'" data-num="'+p.num+'"><div class="fav-num">Nº '+p.num+'</div><div class="fav-name">'+p.curto+'</div></button>';
   });
-  document.getElementById('fav-grid').innerHTML = favHtml;
+  document.getElementById('fav-grid').innerHTML=favHtml;
   document.querySelectorAll('.fav-btn').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      var p = getPrato(this.getAttribute('data-num'));
+    btn.addEventListener('click',function(){
+      var p=getPrato(this.getAttribute('data-num'));
       if(p) mostrarPasso2(p);
     });
   });
- 
-  var opts = '<option value="">Selecionar prato...</option>';
-  PRODUTOS.forEach(function(p){ opts += '<option value="'+p.num+'">Nº '+p.num+' — '+p.curto+'</option>'; });
-  document.getElementById('sel-todos').innerHTML = opts;
-  document.getElementById('sel-todos').onchange = function(){
-    var p = getPrato(this.value);
+  var opts='<option value="">Selecionar prato...</option>';
+  PRODUTOS.forEach(function(p){ opts+='<option value="'+p.num+'">Nº '+p.num+' — '+p.curto+'</option>'; });
+  document.getElementById('sel-todos').innerHTML=opts;
+  document.getElementById('sel-todos').onchange=function(){
+    var p=getPrato(this.value);
     if(p){ mostrarPasso2(p); this.value=''; }
   };
 }
  
-// ===== RENDERS =====
+// RENDERS
 function renderHome(){
-  document.getElementById('topdate').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('topdate').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
   var tot=0,rec=0,luc=0,totEst=0;
   prod.forEach(function(p){ tot+=p.qty; rec+=p.qty*p.preco; luc+=p.qty*(p.preco-p.custo); });
-  Object.values(estoque).forEach(function(v){ totEst+=(+v); });
+  var ekeys=Object.keys(estoque);
+  for(var i=0;i<ekeys.length;i++) totEst+=(+estoque[ekeys[i]]);
   document.getElementById('h-tot').textContent=tot;
   document.getElementById('h-luc').textContent=brl(luc);
   document.getElementById('h-rec').textContent=brl(rec);
   document.getElementById('h-est').textContent=totEst;
- 
-  var alts = PRODUTOS.filter(function(p){ return (estoque[p.num]||0)<(EMIN[p.num]||EMIN.default); });
+  var alts=PRODUTOS.filter(function(p){ return (estoque[p.num]||0)<(EMIN[p.num]||EMIN.default); });
   var ah='';
   if(alts.length){
-    ah='<span class="sec">Alertas ('+alts.length+')</span>';
+    ah='<span class="sec">⚠️ Alertas ('+alts.length+')</span>';
     alts.forEach(function(p){
       var a=estoque[p.num]||0;
-      ah+='<div class="alert-card '+(a===0?'':'warn')+'"><div style="font-size:13px;font-weight:600">'+p.curto+'</div><div style="font-size:11px;color:#666;margin-top:2px">'+(a===0?'Zerado — produzir urgente':a+' unidades — baixo')+'</div></div>';
+      ah+='<div class="alert-card '+(a===0?'':'warn')+'"><div style="font-size:15px;font-weight:700">'+p.curto+'</div><div style="font-size:13px;color:#666;margin-top:4px">'+(a===0?'Zerado — produzir urgente':a+' unidades — baixo')+'</div></div>';
     });
   }
   document.getElementById('h-alertas').innerHTML=ah;
- 
   var rh='';
   if(prod.length){
     rh='<span class="sec">Registros de hoje</span>';
     var rev=[].concat(prod).reverse();
     rev.forEach(function(p){
+      var cor=getCor(p.num);
       var hr=new Date(p.ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-      rh+='<div class="prod-row"><div style="display:flex;align-items:center;gap:10px"><div class="num-circle">'+p.num+'</div><div><div style="font-size:13px;color:#222">'+p.curto+'</div><div style="font-size:11px;color:#888">'+hr+'</div></div></div><div style="text-align:right"><div style="font-size:14px;font-weight:700">'+p.qty+' un</div><div style="font-size:11px;color:#1D9E75">'+brl(p.qty*p.preco)+'</div></div></div>';
+      rh+='<div class="prod-row"><div style="display:flex;align-items:center;gap:12px"><div class="num-circle cor-'+cor+'">'+p.num+'</div><div><div style="font-size:15px;color:#222;font-weight:600">'+p.curto+'</div><div style="font-size:13px;color:#888">'+hr+'</div></div></div><div style="text-align:right"><div style="font-size:16px;font-weight:700">'+p.qty+' un</div><div style="font-size:13px;color:#1D9E75">'+brl(p.qty*p.preco)+'</div></div></div>';
     });
   }
   document.getElementById('h-registros').innerHTML=rh;
@@ -462,7 +590,8 @@ function renderEstoque(){
     var m=EMIN[p.num]||EMIN.default;
     var sc=a===0?'zero':a<m?'low':'ok';
     var st=a===0?'Zerado':a<m?'Baixo':'OK';
-    h+='<div class="prod-row"><div style="display:flex;align-items:center;gap:10px"><div class="num-circle">'+p.num+'</div><span style="font-size:13px;color:#222">'+p.curto+'</span></div><div style="display:flex;align-items:center;gap:6px"><span style="font-size:14px;font-weight:700">'+a+'</span><span class="badge '+sc+'">'+st+'</span></div></div>';
+    var cor=getCor(p.num);
+    h+='<div class="prod-row"><div style="display:flex;align-items:center;gap:12px"><div class="num-circle cor-'+cor+'">'+p.num+'</div><span style="font-size:15px;color:#222;font-weight:500">'+p.curto+'</span></div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px;font-weight:700">'+a+'</span><span class="badge '+sc+'">'+st+'</span></div></div>';
   });
   document.getElementById('estoque-lista').innerHTML=h;
 }
@@ -479,13 +608,14 @@ function renderFinanceiro(){
   if(prod.length){
     ph='<span class="sec">Por prato hoje</span>';
     prod.forEach(function(p){
-      ph+='<div class="prod-row"><div style="display:flex;align-items:center;gap:8px"><div class="num-circle">'+p.num+'</div><span style="font-size:13px">'+p.curto+'</span></div><div style="text-align:right"><div style="font-size:13px;font-weight:700">'+p.qty+' un</div><div style="font-size:11px;color:#1D9E75">'+brl(p.qty*p.preco)+'</div></div></div>';
+      var cor=getCor(p.num);
+      ph+='<div class="prod-row"><div style="display:flex;align-items:center;gap:10px"><div class="num-circle cor-'+cor+'">'+p.num+'</div><span style="font-size:15px">'+p.curto+'</span></div><div style="text-align:right"><div style="font-size:15px;font-weight:700">'+p.qty+' un</div><div style="font-size:13px;color:#1D9E75">'+brl(p.qty*p.preco)+'</div></div></div>';
     });
   }
   document.getElementById('fn-pratos').innerHTML=ph;
   var th='';
   PRODUTOS.filter(function(p){ return p.fav; }).forEach(function(p){
-    th+='<div class="prod-row"><span style="font-size:13px">'+p.curto+'</span><div style="text-align:right"><div style="font-size:13px;font-weight:700">'+brl(p.preco)+'</div><div style="font-size:11px;color:#1D9E75">Lucro '+brl(p.preco-p.custo)+'</div></div></div>';
+    th+='<div class="prod-row"><span style="font-size:15px">'+p.curto+'</span><div style="text-align:right"><div style="font-size:15px;font-weight:700">'+brl(p.preco)+'</div><div style="font-size:13px;color:#1D9E75">Lucro '+brl(p.preco-p.custo)+'</div></div></div>';
   });
   document.getElementById('fn-tabela').innerHTML=th;
 }
