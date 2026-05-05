@@ -27,37 +27,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .prod-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f0f0f0;}
 .prod-row:last-child{border:none;}
 .num-circle{width:34px;height:34px;border-radius:50%;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-
+ 
 /* CORES DOS PRATOS */
 .cor-carne{background:#C0392B;}
 .cor-frango{background:#E67E22;}
 .cor-massa{background:#8E44AD;}
 .cor-peixe{background:#2980B9;}
 .cor-especial{background:#27AE60;}
-
+ 
 .badge{font-size:12px;padding:3px 10px;border-radius:10px;margin-left:8px;}
 .badge.ok{background:#EAF3DE;color:#2d6a0f;}
 .badge.low{background:#FFF3CD;color:#7a5000;}
 .badge.zero{background:#fde8e8;color:#9b1c1c;}
-
+ 
 /* GRID DE PRATOS — letras grandes */
 .fav-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
 .fav-btn{border-radius:12px;padding:16px 12px;cursor:pointer;text-align:left;width:100%;border:none;}
 .fav-num{font-size:13px;font-weight:700;color:rgba(255,255,255,.8);}
 .fav-name{font-size:15px;font-weight:700;color:#fff;margin-top:4px;line-height:1.3;}
-
+ 
 /* Cores dos botões favoritos */
 .fav-btn.cor-carne{background:#C0392B;}
 .fav-btn.cor-frango{background:#E67E22;}
 .fav-btn.cor-massa{background:#8E44AD;}
 .fav-btn.cor-peixe{background:#2980B9;}
 .fav-btn.cor-especial{background:#27AE60;}
-
+ 
 .select-prato{width:100%;padding:14px;border-radius:10px;border:2px solid #ddd;font-size:16px;color:#222;background:#fff;margin-bottom:12px;}
 .prato-sel-card{border-radius:14px;padding:16px;margin-bottom:20px;}
 .psc-num{font-size:14px;font-weight:700;color:rgba(255,255,255,.8);}
 .psc-nome{font-size:20px;font-weight:700;color:#fff;margin-top:4px;}
-
+ 
 /* BANDEJAS */
 .bandejas-box{background:#f7f7f7;border-radius:14px;padding:18px;margin-bottom:16px;}
 .bandejas-title{font-size:16px;font-weight:700;color:#333;margin-bottom:14px;}
@@ -68,19 +68,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .pb-btn.sel-9{background:#1a6fb5;}
 .pb-num{font-size:42px;font-weight:700;line-height:1;}
 .pb-lbl{font-size:13px;margin-top:4px;opacity:.85;}
-.qtd-bandejas-row{display:flex;align-items:center;gap:12px;}
-.qtd-bandejas-row label{font-size:15px;font-weight:600;color:#555;white-space:nowrap;}
-.qtd-bandejas-row input{flex:1;padding:14px;border-radius:10px;border:2px solid #ddd;font-size:24px;text-align:center;font-weight:700;color:#222;}
+.qtd-bandejas-row{display:flex;flex-direction:column;gap:8px;}
+.qtd-bandejas-row label{font-size:15px;font-weight:600;color:#555;}
+.qtd-bandejas-row input{width:100%;padding:16px;border-radius:10px;border:2px solid #ddd;font-size:28px;text-align:center;font-weight:700;color:#222;}
 .total-preview{background:#fff;border-radius:10px;padding:14px;margin-top:12px;text-align:center;border:2px solid #ddd;}
 .total-preview .tp-num{font-size:40px;font-weight:700;color:#C0392B;}
 .total-preview .tp-lbl{font-size:14px;color:#888;margin-top:2px;}
-
+ 
 .outro-qty-box{margin-top:4px;}
 .outro-qty-label{font-size:14px;color:#888;text-align:center;margin-bottom:10px;}
 .outro-qty-row{display:flex;gap:10px;}
 .outro-qty-row input{flex:1;padding:14px;border-radius:10px;border:2px solid #ddd;font-size:20px;text-align:center;font-weight:700;color:#222;}
 .outro-qty-row button{padding:14px 20px;background:#1D9E75;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;}
-
+ 
 .confirmar-box{border-radius:14px;padding:18px;margin-bottom:14px;text-align:center;}
 .cb-qty{font-size:56px;font-weight:700;color:#fff;}
 .cb-nome{font-size:16px;color:rgba(255,255,255,.9);margin-top:4px;}
@@ -88,15 +88,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ic-fin-box{flex:1;background:rgba(255,255,255,.2);border-radius:10px;padding:10px;text-align:center;}
 .ic-fin-box .v{font-size:14px;font-weight:700;color:#fff;}
 .ic-fin-box .l{font-size:11px;color:rgba(255,255,255,.8);margin-top:2px;}
-
+ 
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:#fff;border-top:1px solid #eee;display:flex;z-index:100;}
 .nav button{flex:1;padding:12px 4px;border:none;background:transparent;cursor:pointer;}
 .nav button span:first-child{font-size:22px;display:block;}
 .nav button span:last-child{font-size:11px;color:#999;margin-top:2px;display:block;}
 .nav button.active span:last-child{color:#C0392B;font-weight:700;}
-
+ 
 .toast{position:fixed;top:0;left:50%;transform:translateX(-50%);background:#1D9E75;color:#fff;padding:12px 20px;border-radius:0 0 12px 12px;z-index:999;font-size:15px;font-weight:700;max-width:440px;width:100%;text-align:center;display:none;}
-
+ 
 #login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:#C0392B;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;padding:30px;}
 #login-screen h1{color:#fff;font-size:32px;font-weight:700;margin-bottom:8px;}
 #login-screen p{color:rgba(255,255,255,.8);font-size:15px;margin-bottom:40px;}
@@ -111,7 +111,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </style>
 </head>
 <body>
-
+ 
 <div id="login-screen">
   <h1>🍱 CDC Fit</h1>
   <p>Sistema de Gestão de Produção</p>
@@ -127,7 +127,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="login-err" id="login-err">Senha incorreta. Tente novamente.</div>
   </div>
 </div>
-
+ 
 <div id="app" style="display:none">
   <div class="top">
     <div class="top-row">
@@ -142,7 +142,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
   <div class="toast" id="toast"></div>
-
+ 
   <!-- HOME -->
   <div id="s-home" class="content">
     <span class="sec">Produção de hoje</span>
@@ -163,10 +163,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </button>
     </div>
   </div>
-
+ 
   <!-- PRODUÇÃO -->
   <div id="s-producao" class="content" style="display:none">
-
+ 
     <!-- PASSO 1: escolher prato -->
     <div id="p-passo1">
       <span class="sec">Passo 1 — Qual prato?</span>
@@ -174,14 +174,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <span class="sec">Todos os pratos</span>
       <select class="select-prato" id="sel-todos"><option value="">Selecionar prato...</option></select>
     </div>
-
+ 
     <!-- PASSO 2: bandejas -->
     <div id="p-passo2" style="display:none">
       <div class="prato-sel-card" id="prato-card">
         <div class="psc-num" id="psc-num">Nº —</div>
         <div class="psc-nome" id="psc-nome">—</div>
       </div>
-
+ 
       <div class="bandejas-box">
         <div class="bandejas-title">Por bandeja — quantas embalagens?</div>
         <div class="por-bandeja-row">
@@ -194,18 +194,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <div class="pb-lbl" style="color:#666">embalagens</div>
           </button>
         </div>
-
+ 
         <div class="qtd-bandejas-row">
           <label>Nº de bandejas:</label>
           <input type="number" min="1" id="num-bandejas" placeholder="0">
         </div>
-
+ 
         <div class="total-preview">
           <div class="tp-num" id="total-preview">0</div>
           <div class="tp-lbl">marmitas no total</div>
         </div>
       </div>
-
+ 
       <div class="outro-qty-box">
         <div class="outro-qty-label">— ou informe a quantidade total diretamente —</div>
         <div class="outro-qty-row">
@@ -213,13 +213,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <button id="btn-ok-direto">OK</button>
         </div>
       </div>
-
+ 
       <div style="margin-top:16px">
         <button class="btn btn-green" id="btn-avancar">Avançar →</button>
         <button class="btn btn-gray" id="btn-trocar-prato">↩ Trocar prato</button>
       </div>
     </div>
-
+ 
     <!-- PASSO 3: confirmar -->
     <div id="p-passo3" style="display:none">
       <span class="sec">Passo 3 — Confirme</span>
@@ -237,13 +237,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="btn btn-gray" id="btn-cancelar">✕ Cancelar</button>
     </div>
   </div>
-
+ 
   <!-- ESTOQUE -->
   <div id="s-estoque" class="content" style="display:none">
     <span class="sec">Todos os pratos</span>
     <div id="estoque-lista"></div>
   </div>
-
+ 
   <!-- FINANCEIRO -->
   <div id="s-financeiro" class="content" style="display:none">
     <span class="sec" id="fin-data"></span>
@@ -261,7 +261,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <span class="sec">Exportar</span>
     <button class="btn btn-xls" id="btn-xls">📊 Baixar relatório do dia (.xls)</button>
   </div>
-
+ 
   <nav class="nav">
     <button id="nav-home" class="active"><span>🏠</span><span>Início</span></button>
     <button id="nav-producao"><span>🍱</span><span>Produção</span></button>
@@ -269,12 +269,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button id="nav-financeiro" style="display:none"><span>💰</span><span>Financeiro</span></button>
   </nav>
 </div>
-
+ 
 <script>
 var SENHAS = {funcionario:'1234', gestor:'9999'};
 var perfilAtual = 'funcionario';
 var perfilSel = 'funcionario';
-
+ 
 // Cor por categoria
 var CORES = {
   '1':'carne','2':'carne','3':'carne','4':'carne','5':'carne','6':'carne','7':'carne','8':'carne','26':'carne','41':'carne','42':'carne',
@@ -283,9 +283,9 @@ var CORES = {
   '28':'peixe','29':'peixe','50':'especial','51':'peixe',
   '30':'especial','31':'especial','32':'especial','60':'especial','61':'especial','62':'especial'
 };
-
+ 
 function getCor(num){ return CORES[num] || 'carne'; }
-
+ 
 var PRODUTOS = [
   {num:'1',curto:'Carne moída c/ purê abóbora',preco:16.99,custo:9,fav:true},
   {num:'2',curto:'Feijoada magra',preco:16.99,custo:9,fav:true},
@@ -322,12 +322,12 @@ var PRODUTOS = [
   {num:'50',curto:'Yakissoba de frango',preco:19.99,custo:9,fav:true},
   {num:'51',curto:'Tilápia molho praiano',preco:20.90,custo:9,fav:true}
 ];
-
+ 
 var EMIN = {default:15,'28':10,'29':10,'50':10,'51':10};
 var EST0 = {'6':39,'17':32,'18':25,'21':26,'22':20,'23':25,'25':22,'26':55,'27':28,'28':18,'29':21,'41':21,'50':68,'51':34};
-
+ 
 var estoque, prod, pratoAtual, qtyAtual, porBandeja;
-
+ 
 function init(){
   try{ estoque=JSON.parse(localStorage.getItem('cdc-est')||JSON.stringify(EST0)); }catch(e){ estoque=JSON.parse(JSON.stringify(EST0)); }
   try{ prod=JSON.parse(localStorage.getItem('cdc-prod')||'[]'); }catch(e){ prod=[]; }
@@ -335,18 +335,18 @@ function init(){
   prod=prod.filter(function(p){ return new Date(p.ts).toDateString()===hoje; });
   pratoAtual=null; qtyAtual=0; porBandeja=0;
 }
-
+ 
 function salvarEst(){ try{ localStorage.setItem('cdc-est',JSON.stringify(estoque)); }catch(e){} }
 function salvarProd(){ try{ localStorage.setItem('cdc-prod',JSON.stringify(prod)); }catch(e){} }
 function brl(v){ return 'R$ '+(+v).toFixed(2).replace('.',','); }
 function getPrato(num){ for(var i=0;i<PRODUTOS.length;i++){ if(PRODUTOS[i].num===num) return PRODUTOS[i]; } return null; }
-
+ 
 function showToast(msg){
   var t=document.getElementById('toast');
   t.textContent=msg; t.style.display='block';
   setTimeout(function(){ t.style.display='none'; },3000);
 }
-
+ 
 // LOGIN
 document.getElementById('btn-func').addEventListener('click',function(){
   perfilSel='funcionario';
@@ -379,7 +379,7 @@ document.getElementById('btn-sair').addEventListener('click',function(){
   document.getElementById('app').style.display='none';
   document.getElementById('login-senha').value='';
 });
-
+ 
 // NAV
 function goTo(s){
   ['home','producao','estoque','financeiro'].forEach(function(x){
@@ -398,7 +398,7 @@ document.getElementById('nav-producao').addEventListener('click',function(){ goT
 document.getElementById('nav-estoque').addEventListener('click',function(){ goTo('estoque'); });
 document.getElementById('nav-financeiro').addEventListener('click',function(){ goTo('financeiro'); });
 document.getElementById('btn-ir-prod').addEventListener('click',function(){ goTo('producao'); });
-
+ 
 // PRODUÇÃO
 function resetProd(){
   pratoAtual=null; qtyAtual=0; porBandeja=0;
@@ -416,7 +416,7 @@ function resetProd(){
   document.getElementById('pb9').querySelector('.pb-lbl').style.color='#666';
   initSelects();
 }
-
+ 
 function atualizarTotal(){
   if(porBandeja>0){
     var nb=parseInt(document.getElementById('num-bandejas').value)||0;
@@ -424,7 +424,7 @@ function atualizarTotal(){
     qtyAtual=nb*porBandeja;
   }
 }
-
+ 
 document.getElementById('pb8').addEventListener('click',function(){
   porBandeja=8;
   document.getElementById('pb8').className='pb-btn sel sel-8';
@@ -436,7 +436,7 @@ document.getElementById('pb8').addEventListener('click',function(){
   atualizarTotal();
   document.getElementById('num-bandejas').focus();
 });
-
+ 
 document.getElementById('pb9').addEventListener('click',function(){
   porBandeja=9;
   document.getElementById('pb9').className='pb-btn sel sel-9';
@@ -448,27 +448,27 @@ document.getElementById('pb9').addEventListener('click',function(){
   atualizarTotal();
   document.getElementById('num-bandejas').focus();
 });
-
+ 
 document.getElementById('num-bandejas').addEventListener('input',function(){ atualizarTotal(); });
-
+ 
 document.getElementById('btn-ok-direto').addEventListener('click',function(){
   var v=parseInt(document.getElementById('qty-direto').value)||0;
   if(v>0){ qtyAtual=v; mostrarPasso3(); }
   else showToast('Digite uma quantidade válida');
 });
-
+ 
 document.getElementById('btn-avancar').addEventListener('click',function(){
   if(qtyAtual>0) mostrarPasso3();
   else showToast('Selecione 8 ou 9 e informe o número de bandejas');
 });
-
+ 
 document.getElementById('btn-trocar-prato').addEventListener('click',function(){ resetProd(); });
 document.getElementById('btn-corrigir').addEventListener('click',function(){
   document.getElementById('p-passo3').style.display='none';
   document.getElementById('p-passo2').style.display='block';
 });
 document.getElementById('btn-cancelar').addEventListener('click',function(){ resetProd(); goTo('home'); });
-
+ 
 function mostrarPasso2(p){
   pratoAtual=p;
   var cor=getCor(p.num);
@@ -483,7 +483,7 @@ function mostrarPasso2(p){
   document.getElementById('total-preview').textContent='0';
   qtyAtual=0; porBandeja=0;
 }
-
+ 
 function mostrarPasso3(){
   var cor=getCor(pratoAtual.num);
   document.getElementById('p-passo2').style.display='none';
@@ -496,7 +496,7 @@ function mostrarPasso3(){
   document.getElementById('cf-rec').textContent=brl(qtyAtual*pratoAtual.preco);
   document.getElementById('cf-luc').textContent=brl(qtyAtual*(pratoAtual.preco-pratoAtual.custo));
 }
-
+ 
 document.getElementById('btn-confirmar').addEventListener('click',function(){
   if(!pratoAtual||qtyAtual<=0){ showToast('Quantidade inválida!'); return; }
   estoque[pratoAtual.num]=(estoque[pratoAtual.num]||0)+qtyAtual;
@@ -505,7 +505,7 @@ document.getElementById('btn-confirmar').addEventListener('click',function(){
   showToast(qtyAtual+'x Prato '+pratoAtual.num+' lançado!');
   resetProd(); goTo('home');
 });
-
+ 
 // XLS
 document.getElementById('btn-xls').addEventListener('click',function(){
   if(!prod.length){ showToast('Nenhum registro hoje!'); return; }
@@ -530,9 +530,9 @@ document.getElementById('btn-xls').addEventListener('click',function(){
   a.click();
   showToast('Relatório baixado!');
 });
-
+ 
 document.getElementById('btn-wpp').addEventListener('click', function(){ enviarWhatsApp(); });
-
+ 
 // SELECTS
 function initSelects(){
   var favHtml='';
@@ -555,12 +555,12 @@ function initSelects(){
     if(p){ mostrarPasso2(p); this.value=''; }
   };
 }
-
+ 
 // RENDERS
-
+ 
 // ===== WHATSAPP ETIQUETAS =====
 var WHATSAPP_NUM = '5511939501095';
-
+ 
 function enviarWhatsApp(){
   if(!prod.length){ showToast('Nenhuma produção registrada hoje!'); return; }
   var data = new Date().toLocaleDateString('pt-BR');
@@ -584,13 +584,13 @@ function enviarWhatsApp(){
     + '%0A%0A✅ Favor emitir etiquetas!';
   window.open('https://wa.me/'+WHATSAPP_NUM+'?text='+msg, '_blank');
 }
-
+ 
 function atualizarBtnWpp(){
   var tot = prod.reduce(function(s,p){ return s+p.qty; },0);
   var btn = document.getElementById('h-wpp-btn');
   if(btn) btn.style.display = tot > 0 ? 'block' : 'none';
 }
-
+ 
 function renderHome(){
   document.getElementById('topdate').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
   var tot=0,rec=0,luc=0,totEst=0;
@@ -624,7 +624,7 @@ function renderHome(){
   document.getElementById('h-registros').innerHTML=rh;
   atualizarBtnWpp();
 }
-
+ 
 function renderEstoque(){
   var h='';
   PRODUTOS.forEach(function(p){
@@ -637,7 +637,7 @@ function renderEstoque(){
   });
   document.getElementById('estoque-lista').innerHTML=h;
 }
-
+ 
 function renderFinanceiro(){
   var tot=0,rec=0,luc=0;
   prod.forEach(function(p){ tot+=p.qty; rec+=p.qty*p.preco; luc+=p.qty*(p.preco-p.custo); });
