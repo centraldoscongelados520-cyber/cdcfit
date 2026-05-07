@@ -76,7 +76,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </style>
 </head>
 <body>
- 
+
 <div id="login-screen">
   <h1>🍱 CDC Fit</h1>
   <p>Sistema de Gestão de Produção</p>
@@ -92,7 +92,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="login-err" id="login-err">Senha incorreta. Tente novamente.</div>
   </div>
 </div>
- 
+
 <div id="app" style="display:none">
   <div class="top">
     <div class="top-row">
@@ -107,21 +107,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
   <div class="toast" id="toast"></div>
- 
+
   <!-- HOME -->
   <div id="s-home" class="content">
     <button class="btn btn-red" id="btn-ir-prod" style="margin-top:20px;padding:24px;font-size:20px">🍱 Registrar produção</button>
     <div id="h-registros"></div>
   </div>
- 
+
   <!-- PRODUÇÃO -->
   <div id="s-producao" class="content" style="display:none">
- 
+
     <div id="p-passo1">
       <span class="sec">Selecione o prato</span>
       <select class="select-prato" id="sel-todos"><option value="">Selecionar prato...</option></select>
     </div>
- 
+
     <div id="p-passo2" style="display:none">
       <div class="prato-sel-card" id="prato-card">
         <div class="psc-num" id="psc-num">Nº —</div>
@@ -147,17 +147,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <input type="number" min="0" id="qty-direto" placeholder="+ marmitas extras...">
         <button id="btn-ok-direto">Somar</button>
       </div>
+      <div class="qtd-box" style="margin-top:14px">
+        <label>👤 Quem montou essa bandeja?</label>
+        <input type="text" id="nome-montador" placeholder="Nome da funcionária..." style="width:100%;padding:12px;border-radius:10px;border:2px solid #ddd;font-size:18px;color:#222;">
+      </div>
       <div style="margin-top:16px">
         <button class="btn btn-green" id="btn-avancar">Avançar →</button>
         <button class="btn btn-gray" id="btn-trocar-prato">↩ Trocar prato</button>
       </div>
     </div>
- 
+
     <div id="p-passo3" style="display:none">
       <span class="sec">Confirme</span>
       <div class="confirmar-box" id="confirmar-card">
         <div class="cb-qty" id="cb-qty">0</div>
         <div class="cb-nome" id="cb-nome">—</div>
+        <div id="cb-montador" style="font-size:14px;color:rgba(255,255,255,.85);margin-top:6px"></div>
       </div>
       <button class="btn btn-green" id="btn-confirmar">✓ Confirmar e lançar no estoque</button>
       <div id="btn-wpp-lote" style="display:none">
@@ -168,26 +173,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="btn btn-gray" id="btn-cancelar">✕ Cancelar</button>
     </div>
   </div>
- 
+
   <!-- ESTOQUE -->
   <div id="s-estoque" class="content" style="display:none">
     <span class="sec">Todos os pratos</span>
     <div id="estoque-lista"></div>
   </div>
- 
+
   <nav class="nav">
     <button id="nav-home" class="active"><span>🏠</span><span>Início</span></button>
     <button id="nav-producao"><span>🍱</span><span>Produção</span></button>
     <button id="nav-estoque"><span>📦</span><span>Estoque</span></button>
   </nav>
 </div>
- 
+
 <script>
 var SENHAS = {funcionario:'1234', gestor:'9999'};
 var perfilAtual = 'funcionario';
 var perfilSel = 'funcionario';
 var WHATSAPP_NUM = '5511939501095';
- 
+
 var CORES = {
   '1':'carne','2':'carne','3':'carne','4':'carne','5':'carne','6':'carne','7':'carne','8':'carne','26':'carne','41':'carne','42':'carne',
   '9':'frango','10':'frango','11':'frango','12':'frango','13':'frango','14':'frango','15':'frango','27':'frango','40':'frango','43':'frango',
@@ -196,7 +201,7 @@ var CORES = {
   '50':'especial'
 };
 function getCor(num){ return CORES[num] || 'carne'; }
- 
+
 var PRODUTOS = [
   {num:'1',curto:'Carne moída c/ purê abóbora',preco:16.99},
   {num:'2',curto:'Feijoada magra',preco:16.99},
@@ -233,12 +238,12 @@ var PRODUTOS = [
   {num:'50',curto:'Yakissoba de frango',preco:19.99},
   {num:'51',curto:'Tilápia molho praiano',preco:20.90}
 ];
- 
+
 var EMIN = {default:15,'28':10,'29':10,'50':10,'51':10};
 var EST0 = {'6':39,'17':32,'18':25,'21':26,'22':20,'23':25,'25':22,'26':55,'27':28,'28':18,'29':21,'41':21,'50':68,'51':34};
- 
+
 var estoque, prod, pratoAtual, qtyAtual, porBandeja;
- 
+
 function init(){
   try{ estoque=JSON.parse(localStorage.getItem('cdc-est')||JSON.stringify(EST0)); }catch(e){ estoque=JSON.parse(JSON.stringify(EST0)); }
   try{ prod=JSON.parse(localStorage.getItem('cdc-prod')||'[]'); }catch(e){ prod=[]; }
@@ -246,17 +251,17 @@ function init(){
   prod=prod.filter(function(p){ return new Date(p.ts).toDateString()===hoje; });
   pratoAtual=null; qtyAtual=0; porBandeja=0;
 }
- 
+
 function salvarEst(){ try{ localStorage.setItem('cdc-est',JSON.stringify(estoque)); }catch(e){} }
 function salvarProd(){ try{ localStorage.setItem('cdc-prod',JSON.stringify(prod)); }catch(e){} }
 function getPrato(num){ for(var i=0;i<PRODUTOS.length;i++){ if(PRODUTOS[i].num===num) return PRODUTOS[i]; } return null; }
- 
+
 function showToast(msg){
   var t=document.getElementById('toast');
   t.textContent=msg; t.style.display='block';
   setTimeout(function(){ t.style.display='none'; },3000);
 }
- 
+
 // LOGIN
 document.getElementById('btn-func').addEventListener('click',function(){
   perfilSel='funcionario';
@@ -288,7 +293,7 @@ document.getElementById('btn-sair').addEventListener('click',function(){
   document.getElementById('app').style.display='none';
   document.getElementById('login-senha').value='';
 });
- 
+
 // NAV
 function goTo(s){
   ['home','producao','estoque'].forEach(function(x){
@@ -305,32 +310,10 @@ document.getElementById('nav-home').addEventListener('click',function(){ goTo('h
 document.getElementById('nav-producao').addEventListener('click',function(){ goTo('producao'); });
 document.getElementById('nav-estoque').addEventListener('click',function(){ goTo('estoque'); });
 document.getElementById('btn-ir-prod').addEventListener('click',function(){ goTo('producao'); });
- 
+
 // WHATSAPP
-document.getElementById('btn-wpp').addEventListener('click',function(){
-  if(!prod.length){ showToast('Nenhuma produção registrada hoje!'); return; }
-  var data=new Date().toLocaleDateString('pt-BR');
-  var hora=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-  var agrup={};
-  prod.forEach(function(p){
-    if(!agrup[p.num]) agrup[p.num]={num:p.num,curto:p.curto,qty:0};
-    agrup[p.num].qty+=p.qty;
-  });
-  var tot=prod.reduce(function(s,p){ return s+p.qty; },0);
-  var linhas='';
-  Object.keys(agrup).forEach(function(k){
-    var p=agrup[k];
-    linhas+='%0A• Prato '+p.num+' — '+p.curto+': '+p.qty+' un';
-  });
-  var msg='🍱 *CDC Fit — Solicitação de Etiquetas*'
-    +'%0A%0A📅 '+data+' às '+hora
-    +'%0A👷 Produção registrada:'
-    +linhas
-    +'%0A%0A📦 *Total: '+tot+' marmitas*'
-    +'%0A%0A✅ Favor emitir etiquetas!';
-  window.open('https://wa.me/'+WHATSAPP_NUM+'?text='+msg,'_blank');
-});
- 
+
+
 // PRODUÇÃO
 function resetProd(){
   pratoAtual=null; qtyAtual=0; porBandeja=0;
@@ -342,6 +325,11 @@ function resetProd(){
   document.getElementById('total-preview').textContent='0';
   document.getElementById('pb8').className='pb-btn';
   document.getElementById('pb9').className='pb-btn';
+  document.getElementById('btn-confirmar').style.display='';
+  document.getElementById('btn-corrigir').style.display='';
+  document.getElementById('btn-cancelar').style.display='';
+  document.getElementById('btn-wpp-lote').style.display='none';
+  document.getElementById('nome-montador').value='';
   var opts='<option value="">Selecionar prato...</option>';
   PRODUTOS.forEach(function(p){ opts+='<option value="'+p.num+'">Nº '+p.num+' — '+p.curto+'</option>'; });
   document.getElementById('sel-todos').innerHTML=opts;
@@ -350,7 +338,7 @@ function resetProd(){
     if(p) mostrarPasso2(p);
   };
 }
- 
+
 function atualizarTotal(){
   if(porBandeja>0){
     var nb=parseInt(document.getElementById('num-bandejas').value)||0;
@@ -359,7 +347,7 @@ function atualizarTotal(){
     qtyAtual=total;
   }
 }
- 
+
 document.getElementById('pb8').addEventListener('click',function(){
   porBandeja=8;
   document.getElementById('pb8').className='pb-btn sel-8';
@@ -375,7 +363,7 @@ document.getElementById('pb9').addEventListener('click',function(){
   document.getElementById('num-bandejas').focus();
 });
 document.getElementById('num-bandejas').addEventListener('input',function(){ atualizarTotal(); });
- 
+
 document.getElementById('btn-ok-direto').addEventListener('click',function(){
   var v=parseInt(document.getElementById('qty-direto').value)||0;
   if(v>0){
@@ -395,7 +383,7 @@ document.getElementById('btn-corrigir').addEventListener('click',function(){
   document.getElementById('p-passo2').style.display='block';
 });
 document.getElementById('btn-cancelar').addEventListener('click',function(){ resetProd(); goTo('home'); });
- 
+
 function mostrarPasso2(p){
   pratoAtual=p;
   var cor=getCor(p.num);
@@ -411,7 +399,7 @@ function mostrarPasso2(p){
   document.getElementById('pb8').className='pb-btn';
   document.getElementById('pb9').className='pb-btn';
 }
- 
+
 function mostrarPasso3(){
   var cor=getCor(pratoAtual.num);
   document.getElementById('p-passo2').style.display='none';
@@ -419,15 +407,18 @@ function mostrarPasso3(){
   document.getElementById('confirmar-card').className='confirmar-box cor-'+cor;
   document.getElementById('cb-qty').textContent=qtyAtual;
   document.getElementById('cb-nome').textContent='Prato '+pratoAtual.num+' — '+pratoAtual.curto;
+  var nm=document.getElementById('nome-montador').value;
+  document.getElementById('cb-montador').textContent=nm?'👤 '+nm:'';
 }
- 
+
 document.getElementById('btn-confirmar').addEventListener('click',function(){
   if(!pratoAtual||qtyAtual<=0){ showToast('Quantidade inválida!'); return; }
   estoque[pratoAtual.num]=(estoque[pratoAtual.num]||0)+qtyAtual;
-  prod.push({num:pratoAtual.num,curto:pratoAtual.curto,qty:qtyAtual,ts:new Date().toISOString()});
+  var nomeMontador = document.getElementById('nome-montador').value || 'Não informado';
+  prod.push({num:pratoAtual.num,curto:pratoAtual.curto,qty:qtyAtual,nome:nomeMontador,ts:new Date().toISOString()});
   salvarEst(); salvarProd();
   // Guarda ultimo lote para o WhatsApp
-  ultimoLote = {num:pratoAtual.num, curto:pratoAtual.curto, qty:qtyAtual};
+  ultimoLote = {num:pratoAtual.num, curto:pratoAtual.curto, qty:qtyAtual, nome:nomeMontador};
   // Mostra botão WhatsApp, esconde confirmar e corrigir
   document.getElementById('btn-confirmar').style.display='none';
   document.getElementById('btn-corrigir').style.display='none';
@@ -435,39 +426,44 @@ document.getElementById('btn-confirmar').addEventListener('click',function(){
   document.getElementById('btn-wpp-lote').style.display='block';
   showToast(qtyAtual+'x Prato '+pratoAtual.num+' lançado!');
 });
- 
+
 // ULTIMO LOTE
 var ultimoLote = null;
- 
+
 document.getElementById('btn-wpp').addEventListener('click',function(){
   if(!ultimoLote){ showToast('Nenhum lote para enviar!'); return; }
+  // Garante que tudo está salvo antes de montar a mensagem
+  salvarEst(); salvarProd();
   var data=new Date().toLocaleDateString('pt-BR');
   var hora=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-  var msg='🍱 *CDC Fit — Solicitação de Etiqueta*'
-    +'%0A%0A📅 '+data+' às '+hora
-    +'%0A%0A• Prato '+ultimoLote.num+' — '+ultimoLote.curto
-    +'%0A📦 *Quantidade: '+ultimoLote.qty+' marmitas*'
-    +'%0A%0A✅ Favor emitir etiqueta!';
+  // Monta mensagem só com o lote atual (ultimoLote)
+  var nomeEnc = encodeURIComponent(ultimoLote.nome||'Não informado');
+  var msg='%F0%9F%8D%B1 *CDC Fit %E2%80%94 Solicita%C3%A7%C3%A3o de Etiqueta*'
+    +'%0A%0A%F0%9F%93%85 '+data+' %C3%A0s '+hora
+    +'%0A%0A%E2%80%A2 Prato '+ultimoLote.num+' %E2%80%94 '+encodeURIComponent(ultimoLote.curto)
+    +'%0A%F0%9F%93%A6 *Quantidade: '+ultimoLote.qty+' marmitas*'
+    +'%0A%F0%9F%91%A4 *Montado por: '+nomeEnc+'*'
+    +'%0A%0A%E2%9C%85 Favor emitir etiqueta!';
   window.open('https://wa.me/'+WHATSAPP_NUM+'?text='+msg,'_blank');
-  // Zera e volta ao início após enviar
   setTimeout(function(){
     ultimoLote=null;
     resetProd();
+    renderHome();
     goTo('home');
-  }, 500);
+  }, 1000);
 });
- 
+
 document.getElementById('btn-novo-lote').addEventListener('click',function(){
   ultimoLote=null;
   resetProd();
   goTo('producao');
 });
- 
+
 // RENDERS
 function renderHome(){
   document.getElementById('topdate').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
   var tot=prod.reduce(function(s,p){ return s+p.qty; },0);
- 
+
   var rh='';
   if(prod.length){
     // Agrupar por prato e somar
@@ -487,7 +483,7 @@ function renderHome(){
   }
   document.getElementById('h-registros').innerHTML=rh;
 }
- 
+
 function renderEstoque(){
   var h='';
   PRODUTOS.forEach(function(p){
