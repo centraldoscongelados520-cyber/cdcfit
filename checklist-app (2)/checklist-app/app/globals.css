@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0f0f0f;
+  --surface: #1a1a1a;
+  --surface2: #242424;
+  --border: #2e2e2e;
+  --text: #f0f0f0;
+  --text-muted: #888;
+  --seco: #f5a623;
+  --proteina: #4ade80;
+  --danger: #f87171;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+}
+
+.font-heading {
+  font-family: 'Syne', sans-serif;
+}
+
+/* Checkbox custom */
+.custom-check {
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.custom-check:checked {
+  background: var(--proteina);
+  border-color: var(--proteina);
+}
+
+.custom-check.seco:checked {
+  background: var(--seco);
+  border-color: var(--seco);
+}
+
+.custom-check:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 6px;
+  height: 11px;
+  border: 2px solid #000;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* Item animation */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.item-enter {
+  animation: slideIn 0.2s ease forwards;
+}
