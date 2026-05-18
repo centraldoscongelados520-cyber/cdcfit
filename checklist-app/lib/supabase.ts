@@ -14,11 +14,23 @@ export type Category =
   | 'laticinios'
   | 'proteinas'
   | 'temperos'
+  | 'limpeza'
 
 export interface Item {
   id: string
   name: string
   category: Category
   checked: boolean
+  stock_quantity: number
+  created_at: string
+}
+
+export interface Withdrawal {
+  id: string
+  item_id: string
+  item_name: string
+  category: string
+  quantity: number
+  person: 'Thais' | 'Tawana'
   created_at: string
 }
