@@ -1,8 +1,8 @@
 'use client'
-
+ 
 import { useEffect, useState, useRef } from 'react'
 import { supabase, type Item, type Category, type Withdrawal } from '@/lib/supabase'
-
+ 
 const CATEGORIES: Record<Category, { label: string; emoji: string; color: string }> = {
   proteinas:        { label: 'Proteínas',       emoji: '🥩', color: '#4ade80' },
   graos:            { label: 'Grãos e Bases',    emoji: '🌾', color: '#f5a623' },
@@ -14,9 +14,9 @@ const CATEGORIES: Record<Category, { label: string; emoji: string; color: string
   frutas:           { label: 'Frutas',           emoji: '🍊', color: '#fdba74' },
   limpeza:          { label: 'Limpeza',          emoji: '🧹', color: '#67e8f9' },
 }
-
+ 
 const ORDER = Object.keys(CATEGORIES) as Category[]
-
+ 
 export default function ChecklistApp() {
   const [items, setItems] = useState<Item[]>([])
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([])
@@ -26,11 +26,12 @@ export default function ChecklistApp() {
   const [newItem, setNewItem] = useState('')
   const [adding, setAdding] = useState(false)
   const [modal, setModal] = useState<Item | null>(null)
+  const [modalType, setModalType] = useState<'entrada' | 'saida'>('saida')
   const [wQty, setWQty] = useState('')
   const [wPerson, setWPerson] = useState<'Thais' | 'Tawana' | ''>('')
   const [saving, setSaving] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
-
+ 
   useEffect(() => {
     async function load() {
       const [{ data: itemsData }, { data: wData }] = await Promise.all([
@@ -42,26 +43,33 @@ export default function ChecklistApp() {
       setLoading(false)
     }
     load()
-
+ 
     const ch1 = supabase.channel('items-ch')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'items' }, (payload) => {
         if (payload.eventType === 'INSERT') setItems(prev => [...prev, payload.new as Item])
         else if (payload.eventType === 'UPDATE') setItems(prev => prev.map(i => i.id === payload.new.id ? payload.new as Item : i))
         else if (payload.eventType === 'DELETE') setItems(prev => prev.filter(i => i.id !== payload.old.id))
       }).subscribe()
-
+ 
     const ch2 = supabase.channel('withdrawals-ch')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'withdrawals' }, (payload) => {
         setWithdrawals(prev => [payload.new as Withdrawal, ...prev])
       }).subscribe()
-
+ 
     return () => { supabase.removeChannel(ch1); supabase.removeChannel(ch2) }
   }, [])
-
+ 
   const cat = CATEGORIES[activeTab]
   const filtered = items.filter(i => i.category === activeTab)
   const checkedCount = filtered.filter(i => i.checked).length
-
+ 
+  function openModal(item: Item, type: 'entrada' | 'saida') {
+    setModal(item)
+    setModalType(type)
+    setWQty('')
+    setWPerson('')
+  }
+ 
   async function addItem() {
     const name = newItem.trim()
     if (!name) return
@@ -71,43 +79,60 @@ export default function ChecklistApp() {
     setAdding(false)
     inputRef.current?.focus()
   }
-
+ 
   async function toggleItem(item: Item) {
     await supabase.from('items').update({ checked: !item.checked }).eq('id', item.id)
   }
-
+ 
   async function deleteItem(id: string) {
     await supabase.from('items').delete().eq('id', id)
   }
-
+ 
   async function clearChecked() {
     const ids = filtered.filter(i => i.checked).map(i => i.id)
     if (!ids.length) return
     await supabase.from('items').delete().in('id', ids)
   }
-
-  async function confirmWithdrawal() {
-    if (!modal || !wQty || !wPerson) return
+ 
+  async function confirmMovement() {
+    if (!modal || !wQty) return
     const qty = parseInt(wQty)
     if (!qty || qty <= 0) return
+ 
+    if (modalType === 'saida' && !wPerson) return
+ 
     setSaving(true)
-    const newStock = Math.max(0, (modal.stock_quantity || 0) - qty)
-    await Promise.all([
-      supabase.from('items').update({ stock_quantity: newStock }).eq('id', modal.id),
-      supabase.from('withdrawals').insert({
+ 
+    if (modalType === 'entrada') {
+      const newStock = (modal.stock_quantity || 0) + qty
+      await supabase.from('items').update({ stock_quantity: newStock }).eq('id', modal.id)
+      await supabase.from('withdrawals').insert({
+        item_id: modal.id,
+        item_name: modal.name,
+        category: modal.category,
+        quantity: qty,
+        person: 'Entrada',
+        type: 'entrada',
+      })
+    } else {
+      const newStock = Math.max(0, (modal.stock_quantity || 0) - qty)
+      await supabase.from('items').update({ stock_quantity: newStock }).eq('id', modal.id)
+      await supabase.from('withdrawals').insert({
         item_id: modal.id,
         item_name: modal.name,
         category: modal.category,
         quantity: qty,
         person: wPerson,
-      }),
-    ])
+        type: 'saida',
+      })
+    }
+ 
     setSaving(false)
     setModal(null)
     setWQty('')
     setWPerson('')
   }
-
+ 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-dvh">
@@ -119,7 +144,7 @@ export default function ChecklistApp() {
       </div>
     )
   }
-
+ 
   return (
     <div className="flex flex-col min-h-dvh pb-8">
       {/* Header */}
@@ -130,20 +155,20 @@ export default function ChecklistApp() {
         <div className="flex items-end justify-between">
           <h1 className="font-heading text-3xl font-extrabold text-white leading-tight">Compras</h1>
           <div className="flex gap-2 mb-1">
-            <button
-              onClick={() => setView('lista')}
+            <button onClick={() => setView('lista')}
               className="text-xs px-3 py-1.5 rounded-xl transition-all"
-              style={{ background: view === 'lista' ? '#fff' : 'var(--surface)', color: view === 'lista' ? '#000' : 'var(--text-muted)' }}
-            >Lista</button>
-            <button
-              onClick={() => setView('historico')}
+              style={{ background: view === 'lista' ? '#fff' : 'var(--surface)', color: view === 'lista' ? '#000' : 'var(--text-muted)' }}>
+              Lista
+            </button>
+            <button onClick={() => setView('historico')}
               className="text-xs px-3 py-1.5 rounded-xl transition-all"
-              style={{ background: view === 'historico' ? '#fff' : 'var(--surface)', color: view === 'historico' ? '#000' : 'var(--text-muted)' }}
-            >Histórico</button>
+              style={{ background: view === 'historico' ? '#fff' : 'var(--surface)', color: view === 'historico' ? '#000' : 'var(--text-muted)' }}>
+              Histórico
+            </button>
           </div>
         </div>
       </div>
-
+ 
       {view === 'historico' ? (
         <HistoricoView withdrawals={withdrawals} />
       ) : (
@@ -170,7 +195,7 @@ export default function ChecklistApp() {
               )
             })}
           </div>
-
+ 
           <div className="px-4 flex flex-col flex-1">
             {/* Progress */}
             {filtered.length > 0 && (
@@ -189,7 +214,7 @@ export default function ChecklistApp() {
                 </div>
               </div>
             )}
-
+ 
             {/* Add item */}
             <div className="flex gap-2 mb-5">
               <input ref={inputRef} type="text" value={newItem}
@@ -202,7 +227,7 @@ export default function ChecklistApp() {
                 className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-bold transition-all active:scale-95 disabled:opacity-40"
                 style={{ background: cat.color, color: '#000' }}>+</button>
             </div>
-
+ 
             {/* List */}
             <div className="flex flex-col gap-2 flex-1">
               {filtered.length === 0 ? (
@@ -218,14 +243,16 @@ export default function ChecklistApp() {
                     <ItemRow key={item.id} item={item}
                       onToggle={() => toggleItem(item)}
                       onDelete={() => deleteItem(item.id)}
-                      onWithdraw={() => { setModal(item); setWQty(''); setWPerson('') }}
+                      onEntrada={() => openModal(item, 'entrada')}
+                      onSaida={() => openModal(item, 'saida')}
                       accentColor={cat.color} />
                   ))}
                   {filtered.filter(i => i.checked).map(item => (
                     <ItemRow key={item.id} item={item}
                       onToggle={() => toggleItem(item)}
                       onDelete={() => deleteItem(item.id)}
-                      onWithdraw={() => { setModal(item); setWQty(''); setWPerson('') }}
+                      onEntrada={() => openModal(item, 'entrada')}
+                      onSaida={() => openModal(item, 'saida')}
                       accentColor={cat.color} />
                   ))}
                 </>
@@ -234,46 +261,63 @@ export default function ChecklistApp() {
           </div>
         </>
       )}
-
-      {/* Withdrawal Modal */}
+ 
+      {/* Modal */}
       {modal && (
         <div className="fixed inset-0 z-50 flex items-end" style={{ background: 'rgba(0,0,0,0.7)' }}
           onClick={e => { if (e.target === e.currentTarget) setModal(null) }}>
           <div className="w-full rounded-t-3xl p-6" style={{ background: 'var(--surface)', maxWidth: 480, margin: '0 auto' }}>
             <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: 'var(--border)' }} />
-            <p className="text-xs uppercase tracking-widest mb-1" style={{ color: 'var(--text-muted)' }}>Retirada de estoque</p>
+ 
+            {/* Tipo entrada/saída */}
+            <div className="flex gap-2 mb-5">
+              <button onClick={() => setModalType('entrada')}
+                className="flex-1 py-2.5 rounded-2xl text-sm font-bold transition-all"
+                style={{ background: modalType === 'entrada' ? '#4ade80' : 'var(--surface2)', color: modalType === 'entrada' ? '#000' : 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>
+                ▲ Entrada
+              </button>
+              <button onClick={() => setModalType('saida')}
+                className="flex-1 py-2.5 rounded-2xl text-sm font-bold transition-all"
+                style={{ background: modalType === 'saida' ? '#f87171' : 'var(--surface2)', color: modalType === 'saida' ? '#000' : 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>
+                ▼ Saída
+              </button>
+            </div>
+ 
             <h2 className="font-heading text-xl font-bold text-white mb-1">{modal.name}</h2>
             <p className="text-sm mb-5" style={{ color: 'var(--text-muted)' }}>
               Estoque atual: <span className="font-bold text-white">{modal.stock_quantity || 0}</span>
             </p>
-
+ 
             <label className="text-xs uppercase tracking-widest mb-2 block" style={{ color: 'var(--text-muted)' }}>
-              Quantidade retirada
+              Quantidade
             </label>
             <input type="number" value={wQty} onChange={e => setWQty(e.target.value)}
               placeholder="0" min="1"
               className="w-full px-4 py-3 rounded-2xl text-xl font-bold text-center outline-none mb-4"
               style={{ background: 'var(--surface2)', color: 'var(--text)', border: '1.5px solid var(--border)' }} />
-
-            <label className="text-xs uppercase tracking-widest mb-2 block" style={{ color: 'var(--text-muted)' }}>
-              Quem está retirando?
-            </label>
-            <div className="flex gap-3 mb-5">
-              {(['Thais', 'Tawana'] as const).map(p => (
-                <button key={p} onClick={() => setWPerson(p)}
-                  className="flex-1 py-3 rounded-2xl font-heading font-bold text-sm transition-all"
-                  style={{
-                    background: wPerson === p ? '#4ade80' : 'var(--surface2)',
-                    color: wPerson === p ? '#000' : 'var(--text-muted)',
-                  }}>{p}</button>
-              ))}
-            </div>
-
-            <button onClick={confirmWithdrawal}
-              disabled={saving || !wQty || !wPerson}
+ 
+            {modalType === 'saida' && (
+              <>
+                <label className="text-xs uppercase tracking-widest mb-2 block" style={{ color: 'var(--text-muted)' }}>
+                  Quem está retirando?
+                </label>
+                <div className="flex gap-3 mb-5">
+                  {(['Thais', 'Tawana'] as const).map(p => (
+                    <button key={p} onClick={() => setWPerson(p)}
+                      className="flex-1 py-3 rounded-2xl font-heading font-bold text-sm transition-all"
+                      style={{ background: wPerson === p ? '#4ade80' : 'var(--surface2)', color: wPerson === p ? '#000' : 'var(--text-muted)' }}>
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+ 
+            <button onClick={confirmMovement}
+              disabled={saving || !wQty || (modalType === 'saida' && !wPerson)}
               className="w-full py-4 rounded-2xl font-heading font-bold text-black transition-all active:scale-95 disabled:opacity-40"
-              style={{ background: '#4ade80' }}>
-              {saving ? 'Salvando...' : 'Confirmar retirada'}
+              style={{ background: modalType === 'entrada' ? '#4ade80' : '#f87171' }}>
+              {saving ? 'Salvando...' : modalType === 'entrada' ? 'Confirmar entrada' : 'Confirmar saída'}
             </button>
             <button onClick={() => setModal(null)}
               className="w-full py-3 rounded-2xl mt-2 text-sm"
@@ -284,12 +328,13 @@ export default function ChecklistApp() {
     </div>
   )
 }
-
-function ItemRow({ item, onToggle, onDelete, onWithdraw, accentColor }: {
+ 
+function ItemRow({ item, onToggle, onDelete, onEntrada, onSaida, accentColor }: {
   item: Item
   onToggle: () => void
   onDelete: () => void
-  onWithdraw: () => void
+  onEntrada: () => void
+  onSaida: () => void
   accentColor: string
 }) {
   return (
@@ -304,19 +349,25 @@ function ItemRow({ item, onToggle, onDelete, onWithdraw, accentColor }: {
           </svg>
         )}
       </button>
-
+ 
       <span className="flex-1 text-sm" style={{ textDecoration: item.checked ? 'line-through' : 'none', color: item.checked ? 'var(--text-muted)' : 'var(--text)' }}>
         {item.name}
       </span>
-
-      {/* Stock badge + withdraw button */}
-      <button onClick={onWithdraw}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95"
-        style={{ background: 'var(--surface2)', color: (item.stock_quantity || 0) === 0 ? 'var(--danger)' : accentColor }}>
-        <span>{item.stock_quantity || 0}</span>
-        <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>▼</span>
-      </button>
-
+ 
+      {/* Entrada + estoque + saída */}
+      <div className="flex items-center gap-1">
+        <button onClick={onEntrada}
+          className="w-7 h-7 rounded-xl flex items-center justify-center text-xs font-bold transition-all active:scale-95"
+          style={{ background: 'var(--surface2)', color: '#4ade80' }}>▲</button>
+        <span className="text-xs font-bold px-2 py-1 rounded-lg min-w-[28px] text-center"
+          style={{ background: 'var(--surface2)', color: (item.stock_quantity || 0) === 0 ? 'var(--danger)' : accentColor }}>
+          {item.stock_quantity || 0}
+        </span>
+        <button onClick={onSaida}
+          className="w-7 h-7 rounded-xl flex items-center justify-center text-xs font-bold transition-all active:scale-95"
+          style={{ background: 'var(--surface2)', color: '#f87171' }}>▼</button>
+      </div>
+ 
       <button onClick={onDelete}
         className="w-7 h-7 rounded-xl flex items-center justify-center opacity-25 active:opacity-100"
         style={{ color: 'var(--danger)' }}>
@@ -327,7 +378,7 @@ function ItemRow({ item, onToggle, onDelete, onWithdraw, accentColor }: {
     </div>
   )
 }
-
+ 
 function HistoricoView({ withdrawals }: { withdrawals: Withdrawal[] }) {
   const grouped = withdrawals.reduce((acc, w) => {
     const date = new Date(w.created_at).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })
@@ -335,33 +386,40 @@ function HistoricoView({ withdrawals }: { withdrawals: Withdrawal[] }) {
     acc[date].push(w)
     return acc
   }, {} as Record<string, Withdrawal[]>)
-
+ 
   return (
     <div className="px-4 flex-1">
       {Object.keys(grouped).length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="text-4xl mb-3">📋</div>
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Nenhuma retirada registrada ainda.</p>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Nenhuma movimentação registrada ainda.</p>
         </div>
       ) : (
         Object.entries(grouped).map(([date, items]) => (
           <div key={date} className="mb-6">
             <p className="text-xs uppercase tracking-widest mb-3 capitalize" style={{ color: 'var(--text-muted)' }}>{date}</p>
             <div className="flex flex-col gap-2">
-              {items.map(w => (
-                <div key={w.id} className="flex items-center gap-3 px-4 py-3 rounded-2xl" style={{ background: 'var(--surface)' }}>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-white">{w.item_name}</p>
-                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                      {new Date(w.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                    </p>
+              {items.map(w => {
+                const isEntrada = (w as any).type === 'entrada' || w.person === 'Entrada'
+                return (
+                  <div key={w.id} className="flex items-center gap-3 px-4 py-3 rounded-2xl" style={{ background: 'var(--surface)' }}>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-white">{w.item_name}</p>
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                        {new Date(w.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold" style={{ color: isEntrada ? '#4ade80' : '#f87171' }}>
+                        {isEntrada ? '+' : '-'}{w.quantity}
+                      </p>
+                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                        {isEntrada ? 'Entrada' : w.person}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-bold" style={{ color: '#4ade80' }}>-{w.quantity}</p>
-                    <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{w.person}</p>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         ))
