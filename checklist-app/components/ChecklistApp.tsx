@@ -1,8 +1,8 @@
 'use client'
-
+ 
 import { useEffect, useState, useRef } from 'react'
 import { supabase, type Item, type Category, type Withdrawal } from '@/lib/supabase'
-
+ 
 const CATEGORIES: Record<Category, { label: string; emoji: string; color: string }> = {
   proteinas:        { label: 'Proteínas',       emoji: '🥩', color: '#4ade80' },
   graos:            { label: 'Grãos e Bases',    emoji: '🌾', color: '#f5a623' },
@@ -14,9 +14,9 @@ const CATEGORIES: Record<Category, { label: string; emoji: string; color: string
   frutas:           { label: 'Frutas',           emoji: '🍊', color: '#fdba74' },
   limpeza:          { label: 'Limpeza',          emoji: '🧹', color: '#67e8f9' },
 }
-
+ 
 const ORDER = Object.keys(CATEGORIES) as Category[]
-
+ 
 export default function ChecklistApp() {
   const [items, setItems] = useState<Item[]>([])
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([])
@@ -30,8 +30,9 @@ export default function ChecklistApp() {
   const [wQty, setWQty] = useState('')
   const [wPerson, setWPerson] = useState<'Thais' | 'Tawana' | ''>('')
   const [saving, setSaving] = useState(false)
+  const [modalError, setModalError] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
-
+ 
   useEffect(() => {
     async function load() {
       const [{ data: itemsData }, { data: wData }] = await Promise.all([
@@ -43,33 +44,34 @@ export default function ChecklistApp() {
       setLoading(false)
     }
     load()
-
+ 
     const ch1 = supabase.channel('items-ch')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'items' }, (payload) => {
         if (payload.eventType === 'INSERT') setItems(prev => [...prev, payload.new as Item])
         else if (payload.eventType === 'UPDATE') setItems(prev => prev.map(i => i.id === payload.new.id ? payload.new as Item : i))
         else if (payload.eventType === 'DELETE') setItems(prev => prev.filter(i => i.id !== payload.old.id))
       }).subscribe()
-
+ 
     const ch2 = supabase.channel('withdrawals-ch')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'withdrawals' }, (payload) => {
         setWithdrawals(prev => [payload.new as Withdrawal, ...prev])
       }).subscribe()
-
+ 
     return () => { supabase.removeChannel(ch1); supabase.removeChannel(ch2) }
   }, [])
-
+ 
   const cat = CATEGORIES[activeTab]
   const filtered = items.filter(i => i.category === activeTab)
   const checkedCount = filtered.filter(i => i.checked).length
-
+ 
   function openModal(item: Item, type: 'entrada' | 'saida') {
     setModal(item)
     setModalType(type)
     setWQty('')
     setWPerson('')
+    setModalError('')
   }
-
+ 
   async function addItem() {
     const name = newItem.trim()
     if (!name) return
@@ -79,60 +81,93 @@ export default function ChecklistApp() {
     setAdding(false)
     inputRef.current?.focus()
   }
-
+ 
   async function toggleItem(item: Item) {
     await supabase.from('items').update({ checked: !item.checked }).eq('id', item.id)
   }
-
+ 
   async function deleteItem(id: string) {
     await supabase.from('items').delete().eq('id', id)
   }
-
+ 
   async function clearChecked() {
     const ids = filtered.filter(i => i.checked).map(i => i.id)
     if (!ids.length) return
     await supabase.from('items').delete().in('id', ids)
   }
-
+ 
   async function confirmMovement() {
-    if (!modal || !wQty) return
+    if (!modal) return
+    setModalError('')
+ 
     const qty = parseInt(wQty)
-    if (!qty || qty <= 0) return
-
-    if (modalType === 'saida' && !wPerson) return
-
-    setSaving(true)
-
-    if (modalType === 'entrada') {
-      const newStock = (modal.stock_quantity || 0) + qty
-      await supabase.from('items').update({ stock_quantity: newStock }).eq('id', modal.id)
-      await supabase.from('withdrawals').insert({
-        item_id: modal.id,
-        item_name: modal.name,
-        category: modal.category,
-        quantity: qty,
-        person: 'Entrada',
-        type: 'entrada',
-      })
-    } else {
-      const newStock = Math.max(0, (modal.stock_quantity || 0) - qty)
-      await supabase.from('items').update({ stock_quantity: newStock }).eq('id', modal.id)
-      await supabase.from('withdrawals').insert({
-        item_id: modal.id,
-        item_name: modal.name,
-        category: modal.category,
-        quantity: qty,
-        person: wPerson,
-        type: 'saida',
-      })
+    if (!qty || qty <= 0) {
+      setModalError('Digite uma quantidade válida.')
+      return
     }
-
-    setSaving(false)
-    setModal(null)
-    setWQty('')
-    setWPerson('')
+    if (modalType === 'saida' && !wPerson) {
+      setModalError('Selecione quem está retirando.')
+      return
+    }
+ 
+    setSaving(true)
+ 
+    try {
+      if (modalType === 'entrada') {
+        const newStock = (modal.stock_quantity || 0) + qty
+ 
+        const { error: e1 } = await supabase
+          .from('items')
+          .update({ stock_quantity: newStock })
+          .eq('id', modal.id)
+ 
+        if (e1) throw new Error('Erro ao atualizar estoque: ' + e1.message)
+ 
+        const { error: e2 } = await supabase.from('withdrawals').insert({
+          item_id: modal.id,
+          item_name: modal.name,
+          category: modal.category,
+          quantity: qty,
+          person: 'Entrada',
+          type: 'entrada',
+        })
+ 
+        if (e2) throw new Error('Erro ao registrar entrada: ' + e2.message)
+ 
+      } else {
+        const newStock = Math.max(0, (modal.stock_quantity || 0) - qty)
+ 
+        const { error: e1 } = await supabase
+          .from('items')
+          .update({ stock_quantity: newStock })
+          .eq('id', modal.id)
+ 
+        if (e1) throw new Error('Erro ao atualizar estoque: ' + e1.message)
+ 
+        const { error: e2 } = await supabase.from('withdrawals').insert({
+          item_id: modal.id,
+          item_name: modal.name,
+          category: modal.category,
+          quantity: qty,
+          person: wPerson,
+          type: 'saida',
+        })
+ 
+        if (e2) throw new Error('Erro ao registrar saída: ' + e2.message)
+      }
+ 
+      setSaving(false)
+      setModal(null)
+      setWQty('')
+      setWPerson('')
+      setModalError('')
+ 
+    } catch (err: any) {
+      setSaving(false)
+      setModalError(err.message || 'Erro desconhecido. Tente novamente.')
+    }
   }
-
+ 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-dvh">
@@ -144,7 +179,7 @@ export default function ChecklistApp() {
       </div>
     )
   }
-
+ 
   return (
     <div className="flex flex-col min-h-dvh pb-8">
       {/* Header */}
@@ -168,7 +203,7 @@ export default function ChecklistApp() {
           </div>
         </div>
       </div>
-
+ 
       {view === 'historico' ? (
         <HistoricoView withdrawals={withdrawals} />
       ) : (
@@ -195,7 +230,7 @@ export default function ChecklistApp() {
               )
             })}
           </div>
-
+ 
           <div className="px-4 flex flex-col flex-1">
             {/* Progress */}
             {filtered.length > 0 && (
@@ -214,7 +249,7 @@ export default function ChecklistApp() {
                 </div>
               </div>
             )}
-
+ 
             {/* Add item */}
             <div className="flex gap-2 mb-5">
               <input ref={inputRef} type="text" value={newItem}
@@ -227,7 +262,7 @@ export default function ChecklistApp() {
                 className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-bold transition-all active:scale-95 disabled:opacity-40"
                 style={{ background: cat.color, color: '#000' }}>+</button>
             </div>
-
+ 
             {/* List */}
             <div className="flex flex-col gap-2 flex-1">
               {filtered.length === 0 ? (
@@ -261,41 +296,41 @@ export default function ChecklistApp() {
           </div>
         </>
       )}
-
+ 
       {/* Modal */}
       {modal && (
         <div className="fixed inset-0 z-50 flex items-end" style={{ background: 'rgba(0,0,0,0.7)' }}
           onClick={e => { if (e.target === e.currentTarget) setModal(null) }}>
           <div className="w-full rounded-t-3xl p-6" style={{ background: 'var(--surface)', maxWidth: 480, margin: '0 auto' }}>
             <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: 'var(--border)' }} />
-
+ 
             {/* Tipo entrada/saída */}
             <div className="flex gap-2 mb-5">
-              <button onClick={() => setModalType('entrada')}
+              <button onClick={() => { setModalType('entrada'); setModalError('') }}
                 className="flex-1 py-2.5 rounded-2xl text-sm font-bold transition-all"
                 style={{ background: modalType === 'entrada' ? '#4ade80' : 'var(--surface2)', color: modalType === 'entrada' ? '#000' : 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>
                 ▲ Entrada
               </button>
-              <button onClick={() => setModalType('saida')}
+              <button onClick={() => { setModalType('saida'); setModalError('') }}
                 className="flex-1 py-2.5 rounded-2xl text-sm font-bold transition-all"
                 style={{ background: modalType === 'saida' ? '#f87171' : 'var(--surface2)', color: modalType === 'saida' ? '#000' : 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>
                 ▼ Saída
               </button>
             </div>
-
+ 
             <h2 className="font-heading text-xl font-bold text-white mb-1">{modal.name}</h2>
             <p className="text-sm mb-5" style={{ color: 'var(--text-muted)' }}>
               Estoque atual: <span className="font-bold text-white">{modal.stock_quantity || 0}</span>
             </p>
-
+ 
             <label className="text-xs uppercase tracking-widest mb-2 block" style={{ color: 'var(--text-muted)' }}>
               Quantidade
             </label>
-            <input type="number" value={wQty} onChange={e => setWQty(e.target.value)}
+            <input type="number" value={wQty} onChange={e => { setWQty(e.target.value); setModalError('') }}
               placeholder="0" min="1"
               className="w-full px-4 py-3 rounded-2xl text-xl font-bold text-center outline-none mb-4"
               style={{ background: 'var(--surface2)', color: 'var(--text)', border: '1.5px solid var(--border)' }} />
-
+ 
             {modalType === 'saida' && (
               <>
                 <label className="text-xs uppercase tracking-widest mb-2 block" style={{ color: 'var(--text-muted)' }}>
@@ -303,19 +338,31 @@ export default function ChecklistApp() {
                 </label>
                 <div className="flex gap-3 mb-5">
                   {(['Thais', 'Tawana'] as const).map(p => (
-                    <button key={p} onClick={() => setWPerson(p)}
+                    <button key={p} onClick={() => { setWPerson(p); setModalError('') }}
                       className="flex-1 py-3 rounded-2xl font-heading font-bold text-sm transition-all"
-                      style={{ background: wPerson === p ? '#4ade80' : 'var(--surface2)', color: wPerson === p ? '#000' : 'var(--text-muted)' }}>
+                      style={{
+                        background: wPerson === p ? '#4ade80' : 'var(--surface2)',
+                        color: wPerson === p ? '#000' : 'var(--text)',
+                        border: wPerson === p ? 'none' : '2px solid var(--border)',
+                      }}>
                       {p}
                     </button>
                   ))}
                 </div>
               </>
             )}
-
+ 
+            {/* Mensagem de erro */}
+            {modalError ? (
+              <p className="text-sm text-center mb-3 px-2 py-2 rounded-xl"
+                style={{ color: '#f87171', background: 'rgba(248,113,113,0.1)' }}>
+                {modalError}
+              </p>
+            ) : null}
+ 
             <button onClick={confirmMovement}
-              disabled={saving || !wQty || (modalType === 'saida' && !wPerson)}
-              className="w-full py-4 rounded-2xl font-heading font-bold text-black transition-all active:scale-95 disabled:opacity-40"
+              disabled={saving}
+              className="w-full py-4 rounded-2xl font-heading font-bold text-black transition-all active:scale-95 disabled:opacity-60"
               style={{ background: modalType === 'entrada' ? '#4ade80' : '#f87171' }}>
               {saving ? 'Salvando...' : modalType === 'entrada' ? 'Confirmar entrada' : 'Confirmar saída'}
             </button>
@@ -328,7 +375,7 @@ export default function ChecklistApp() {
     </div>
   )
 }
-
+ 
 function ItemRow({ item, onToggle, onDelete, onEntrada, onSaida, accentColor }: {
   item: Item
   onToggle: () => void
@@ -349,12 +396,11 @@ function ItemRow({ item, onToggle, onDelete, onEntrada, onSaida, accentColor }: 
           </svg>
         )}
       </button>
-
+ 
       <span className="flex-1 text-sm" style={{ textDecoration: item.checked ? 'line-through' : 'none', color: item.checked ? 'var(--text-muted)' : 'var(--text)' }}>
         {item.name}
       </span>
-
-      {/* Entrada + estoque + saída */}
+ 
       <div className="flex items-center gap-1">
         <button onClick={onEntrada}
           className="w-7 h-7 rounded-xl flex items-center justify-center text-xs font-bold transition-all active:scale-95"
@@ -367,7 +413,7 @@ function ItemRow({ item, onToggle, onDelete, onEntrada, onSaida, accentColor }: 
           className="w-7 h-7 rounded-xl flex items-center justify-center text-xs font-bold transition-all active:scale-95"
           style={{ background: 'var(--surface2)', color: '#f87171' }}>▼</button>
       </div>
-
+ 
       <button onClick={onDelete}
         className="w-7 h-7 rounded-xl flex items-center justify-center opacity-25 active:opacity-100"
         style={{ color: 'var(--danger)' }}>
@@ -378,7 +424,7 @@ function ItemRow({ item, onToggle, onDelete, onEntrada, onSaida, accentColor }: 
     </div>
   )
 }
-
+ 
 function HistoricoView({ withdrawals }: { withdrawals: Withdrawal[] }) {
   const grouped = withdrawals.reduce((acc, w) => {
     const date = new Date(w.created_at).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })
@@ -386,7 +432,7 @@ function HistoricoView({ withdrawals }: { withdrawals: Withdrawal[] }) {
     acc[date].push(w)
     return acc
   }, {} as Record<string, Withdrawal[]>)
-
+ 
   return (
     <div className="px-4 flex-1">
       {Object.keys(grouped).length === 0 ? (
