@@ -4,15 +4,13 @@ import { useEffect, useState, useRef } from 'react'
 import { supabase, type Item, type Category, type Withdrawal } from '@/lib/supabase'
  
 const CATEGORIES: Record<Category, { label: string; emoji: string; color: string }> = {
-  proteinas:        { label: 'Proteínas',       emoji: '🥩', color: '#4ade80' },
-  graos:            { label: 'Grãos e Bases',    emoji: '🌾', color: '#f5a623' },
-  hortifruti:       { label: 'Hortifruti',       emoji: '🥦', color: '#86efac' },
-  laticinios:       { label: 'Laticínios',       emoji: '🧀', color: '#fde68a' },
-  temperos:         { label: 'Temperos',         emoji: '🧂', color: '#c4b5fd' },
-  industrializados: { label: 'Industrializados', emoji: '🥫', color: '#fb923c' },
-  doces:            { label: 'Doces e Apoio',    emoji: '🍫', color: '#f9a8d4' },
-  frutas:           { label: 'Frutas',           emoji: '🍊', color: '#fdba74' },
-  limpeza:          { label: 'Limpeza',          emoji: '🧹', color: '#67e8f9' },
+  proteinas:  { label: 'Proteínas',    emoji: '🥩', color: '#4ade80' },
+  hortifruti: { label: 'Hortifruti',   emoji: '🥦', color: '#86efac' },
+  laticinios: { label: 'Laticínios',   emoji: '🧀', color: '#fde68a' },
+  seco:       { label: 'Estoque Seco', emoji: '📦', color: '#fbbf24' },
+  temperos:   { label: 'Temperos',     emoji: '🧂', color: '#c4b5fd' },
+  doces:      { label: 'Doces',        emoji: '🍫', color: '#f9a8d4' },
+  limpeza:    { label: 'Limpeza',      emoji: '🧹', color: '#67e8f9' },
 }
  
 const ORDER = Object.keys(CATEGORIES) as Category[]
