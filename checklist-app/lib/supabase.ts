@@ -7,13 +7,11 @@ export const supabase = createClient(supabaseUrl, supabaseKey)
 
 export type Category =
   | 'doces'
-  | 'frutas'
-  | 'graos'
   | 'hortifruti'
-  | 'industrializados'
   | 'laticinios'
   | 'proteinas'
   | 'temperos'
+  | 'seco'
   | 'limpeza'
 
 export interface Item {
