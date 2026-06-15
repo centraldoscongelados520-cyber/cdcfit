@@ -60,7 +60,9 @@ export default function ChecklistApp() {
   }, [])
  
   const cat = CATEGORIES[activeTab]
-  const filtered = items.filter(i => i.category === activeTab)
+  const filtered = items
+    .filter(i => i.category === activeTab)
+    .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
   const checkedCount = filtered.filter(i => i.checked).length
  
   function openModal(item: Item, type: 'entrada' | 'saida') {
