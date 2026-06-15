@@ -8,6 +8,7 @@ const CATEGORIES: Record<Category, { label: string; emoji: string; color: string
   hortifruti: { label: 'Hortifruti',   emoji: '🥦', color: '#86efac' },
   laticinios: { label: 'Laticínios',   emoji: '🧀', color: '#fde68a' },
   seco:       { label: 'Estoque Seco', emoji: '📦', color: '#fbbf24' },
+  massas:     { label: 'Massas',       emoji: '🍝', color: '#fdba74' },
   temperos:   { label: 'Temperos',     emoji: '🧂', color: '#c4b5fd' },
   doces:      { label: 'Doces',        emoji: '🍫', color: '#f9a8d4' },
   limpeza:    { label: 'Limpeza',      emoji: '🧹', color: '#67e8f9' },
