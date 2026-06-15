@@ -12,6 +12,7 @@ export type Category =
   | 'proteinas'
   | 'temperos'
   | 'seco'
+  | 'massas'
   | 'limpeza'
 
 export interface Item {
