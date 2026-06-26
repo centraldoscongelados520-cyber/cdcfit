@@ -1,14 +1,328 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CDC Fit</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CDC Fit — Estoque</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#F7F7F5;--surface:#fff;--border:#E4E4DF;--border2:#CECEC8;
+      --text:#1A1A18;--text2:#5C5C58;--text3:#9C9C96;
+      --green:#0F6E56;--gbg:#E1F5EE;--gbd:#5DCAA5;
+      --red:#993C1D;--rbg:#FAECE7;--rbd:#F0997B;
+      --amber:#854F0B;--abg:#FAEEDA;--abd:#EF9F27;
+      --r:10px;--rs:6px;
+    }
+    body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+    button{font-family:inherit;font-size:13px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:var(--rs);padding:6px 12px;line-height:1;transition:background .15s}
+    button:hover{background:var(--bg);border-color:var(--border2)}
+    button:disabled{opacity:.4;cursor:default}
+    input[type=text],input[type=number]{font-family:inherit;font-size:13px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:var(--rs);padding:6px 10px;outline:none}
+    input[type=number]{text-align:center;width:44px;height:30px;-moz-appearance:textfield}
+    input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+    input[type=text]{width:100%;margin-bottom:14px}
+
+    .nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+    .nav-inner{max-width:800px;margin:0 auto;padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between}
+    .nav-logo{font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px}
+    .nav-logo svg{color:#D85A30}
+    .nav-links{display:flex;gap:4px}
+    .nav-btn{font-size:13px;padding:6px 14px;border:1px solid transparent;background:transparent;color:var(--text2);border-radius:6px}
+    .nav-btn:hover{background:var(--bg);border-color:transparent}
+    .nav-btn.on{background:var(--bg);color:var(--text);border-color:var(--border);font-weight:500}
+
+    .page{max-width:800px;margin:0 auto;padding:28px 20px 60px}
+    .brand{font-size:10px;font-weight:600;letter-spacing:.12em;color:var(--text3);margin-bottom:4px}
+    h1{font-size:22px;font-weight:600;letter-spacing:-.02em;margin-bottom:24px}
+
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+    .mc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+    .ml{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px}
+    .mv{font-size:26px;font-weight:600;letter-spacing:-.03em}
+
+    .tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:20px}
+    .tab{font-size:13px;padding:8px 18px;border:none;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:var(--text2);display:flex;align-items:center;gap:6px;margin-bottom:-1px}
+    .tab:hover{color:var(--text);background:transparent;border-color:transparent;border-bottom-color:var(--border2)}
+    .tab.on{color:var(--text);font-weight:500;border-bottom-color:var(--text)}
+    .badge{font-size:10px;padding:1px 6px;border-radius:10px;background:var(--rbg);color:var(--red);font-weight:600}
+
+    .list{display:flex;flex-direction:column;gap:5px}
+    .row{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:10px;transition:background .25s,border-color .25s}
+    .row.fi{background:var(--gbg);border-color:var(--gbd)}
+    .row.fo{background:var(--rbg);border-color:var(--rbd)}
+    .nome{flex:1;font-size:13px;color:var(--text)}
+    .cur{min-width:36px;text-align:center;font-size:20px;font-weight:600;flex-shrink:0}
+    .qc{display:flex;align-items:center;gap:3px;flex-shrink:0}
+    .qb{width:26px;height:30px;font-size:16px;border-radius:6px;padding:0}
+    .bin{font-size:12px;padding:6px 10px;border-radius:6px;background:var(--gbg);color:var(--green);border:1px solid var(--gbd);font-weight:500;flex-shrink:0}
+    .bin:hover{background:#d0f0e5}
+    .bout{font-size:12px;padding:6px 10px;border-radius:6px;background:var(--rbg);color:var(--red);border:1px solid var(--rbd);font-weight:500;flex-shrink:0}
+    .bout:hover{background:#fad8d0}
+    .bout:disabled{background:var(--bg);color:var(--text3);border-color:var(--border)}
+
+    .lh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:13px;font-weight:500}
+    .lr{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+    .lr:last-child{border-bottom:none}
+    .lb{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;min-width:60px;text-align:center;flex-shrink:0;text-transform:uppercase}
+    .lb.in{background:var(--gbg);color:var(--green)}
+    .lb.out{background:var(--rbg);color:var(--red)}
+    .lnome{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .lqty{font-weight:600;flex-shrink:0}
+    .lhora{color:var(--text3);min-width:50px;text-align:right;flex-shrink:0}
+
+    .cs{margin-bottom:20px}
+    .ct{font-size:12px;font-weight:600;padding:6px 10px;border-radius:6px;margin-bottom:8px}
+    .ct.red{background:var(--rbg);color:var(--red);border:1px solid var(--rbd)}
+    .ct.amb{background:var(--abg);color:var(--amber);border:1px solid var(--abd)}
+    .cr{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:5px}
+
+    .wa{width:100%;margin-top:8px;padding:14px;border-radius:var(--r);background:#25D366;color:#fff;border:none;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px}
+    .wa:hover{background:#1ebe5c;border-color:transparent;color:#fff}
+    .ok{display:flex;flex-direction:column;align-items:center;padding:60px 0;color:var(--text3);font-size:13px}
+    .empty{text-align:center;color:var(--text3);font-size:13px;padding:20px 0}
+    .dghost{color:var(--red)!important;border-color:transparent!important;background:transparent!important}
+    .dghost:hover{background:var(--rbg)!important}
+    .foot{margin-top:36px;font-size:11px;color:var(--text3);text-align:center}
+    @media(max-width:600px){.metrics{grid-template-columns:repeat(2,1fr)}.row{flex-wrap:wrap}}
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const ITENS = [
+  "Arroz parbolizado","Feijão carioca","Carne moída patinho","Purê de batata",
+  "Purê de cabotiá","Frango base","Mix de legumes refogados","Pernil cozido",
+  "Molho de tomate assado","Molho branco de alho poró","Feijoada magra",
+  "Couve refogada","Farofa","Hambúrguer patinho","Filé de frango empanado",
+  "Kibe assado","Estrogonofe de carne","Batata rústica assada",
+  "Picadinho c/ batata e cenoura","Frango desfiado refogado","Brócolis refogado",
+  "Creme de milho","Sobrecoxa assada","Massa de panqueca","Couve-flor gratinada",
+  "Penne c/ brócolis","Salmão desfiado assado","Batata rústica gratinada",
+  "Arroz com brócolis","Lasanha","Caldo verde","Caldo Vitality cabotiá c/ frango",
+  "Caldo de mandioquinha c/ carne seca","Torta de frango de aveia",
+  "Mussarela ralada","Tomate picado fresco"
+].map((nome,i)=>({id:"item_"+i,nome}));
+
+const WA  = "5511991185018";
+const SK  = "cdcfit:mp:stock";
+const LK  = "cdcfit:mp:log";
+const ld  = k=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch{return null}};
+const sv  = (k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}};
+const dh  = ()=>new Date().toLocaleDateString("pt-BR");
+const th  = ()=>new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+
+let stock  = ld(SK)||{};
+let log    = ld(LK)||[];
+let qtys   = {};
+let compra = {};
+let tab    = "estoque";
+let page   = "estoque";
+let busca  = "";
+let flash  = {};
+
+function render(){
+  const app = document.getElementById("app");
+
+  // métricas
+  const total   = Object.values(stock).reduce((a,b)=>a+b,0);
+  const zeros   = ITENS.filter(i=>(stock[i.id]||0)===0);
+  const baixos  = ITENS.filter(i=>{const s=stock[i.id]||0;return s>0&&s<=3});
+  const alertas = zeros.length+baixos.length;
+  const hoje    = log.filter(l=>l.data===dh());
+  const entHj   = hoje.filter(l=>l.t==="in").reduce((a,l)=>a+l.qty,0);
+  const saiHj   = hoje.filter(l=>l.t==="out").reduce((a,l)=>a+l.qty,0);
+
+  const visivel = busca.trim()
+    ? ITENS.filter(i=>i.nome.toLowerCase().includes(busca.toLowerCase()))
+    : ITENS;
+
+  // ── construção do HTML ────────────────────────────────────────────────────
+  let html = `
+  <nav class="nav"><div class="nav-inner">
+    <div class="nav-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+      </svg>
+      CDC Fit
+    </div>
+    <div class="nav-links">
+      <button class="nav-btn ${page==="estoque"?"on":""}" onclick="setPage('estoque')">Estoque</button>
+      <button class="nav-btn ${page==="producao"?"on":""}" onclick="setPage('producao')">Produção</button>
+    </div>
+  </div></nav>`;
+
+  if(page==="estoque"){
+    html += `<div class="page">
+    <div class="brand">CDC FIT</div>
+    <h1>Estoque de Matéria Prima</h1>
+
+    <div class="metrics">
+      <div class="mc"><span class="ml">Total em estoque</span><span class="mv">${total}</span></div>
+      <div class="mc"><span class="ml">Entradas hoje</span><span class="mv" style="color:var(--green)">${entHj}</span></div>
+      <div class="mc"><span class="ml">Saídas hoje</span><span class="mv" style="color:var(--red)">${saiHj}</span></div>
+      <div class="mc"><span class="ml">Sem estoque</span><span class="mv" style="color:${zeros.length>0?"var(--amber)":"var(--text)"}">${zeros.length}</span></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab ${tab==="estoque"?"on":""}" onclick="setTab('estoque')">Estoque</button>
+      <button class="tab ${tab==="historico"?"on":""}" onclick="setTab('historico')">Histórico${log.length>0?" ("+log.length+")":""}</button>
+      <button class="tab ${tab==="compras"?"on":""}" onclick="setTab('compras')">
+        Lista de Compras${alertas>0?` <span class="badge">${alertas}</span>`:""}
+      </button>
+    </div>`;
+
+    // ── ABA ESTOQUE ──
+    if(tab==="estoque"){
+      html += `<input type="text" placeholder="Buscar ingrediente..." value="${busca}" oninput="setBusca(this.value)" />
+      <div class="list">`;
+      visivel.forEach(item=>{
+        const cur = stock[item.id]||0;
+        const qty = qtys[item.id]||1;
+        const fl  = flash[item.id];
+        const cor = cur===0?"var(--red)":cur<=3?"var(--amber)":"var(--text)";
+        html += `<div class="row${fl==="in"?" fi":fl==="out"?" fo":""}">
+          <div class="nome">${item.nome}</div>
+          <div class="cur" style="color:${cor}">${cur}</div>
+          <div class="qc">
+            <button class="qb" onclick="adjQty('${item.id}',-1)">−</button>
+            <input type="number" min="1" value="${qty}" onchange="setQty('${item.id}',this.value)" />
+            <button class="qb" onclick="adjQty('${item.id}',1)">+</button>
+          </div>
+          <button class="bin" onclick="move('${item.id}','in')">↓ Entrada</button>
+          <button class="bout" onclick="move('${item.id}','out')" ${cur<=0?"disabled":""}>↑ Saída</button>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+
+    // ── ABA HISTÓRICO ──
+    if(tab==="historico"){
+      html += `<div class="lh"><span>Movimentações registradas</span>
+        ${log.length>0?`<button class="dghost" onclick="clearLog()">Limpar histórico</button>`:""}
+      </div>`;
+      if(log.length===0) html+=`<p class="empty">Nenhuma movimentação.</p>`;
+      else log.forEach(l=>{
+        html+=`<div class="lr">
+          <span class="lb ${l.t==="in"?"in":"out"}">${l.t==="in"?"↓ entrada":"↑ saída"}</span>
+          <span class="lnome">${l.nome}</span>
+          <span class="lqty">×${l.qty}</span>
+          <span class="lhora">${l.data!==dh()?l.data:l.hora}</span>
+        </div>`;
+      });
+    }
+
+    // ── ABA LISTA DE COMPRAS ──
+    if(tab==="compras"){
+      if(zeros.length===0&&baixos.length===0){
+        html+=`<div class="ok">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.3;margin-bottom:12px">
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Estoque OK — nenhum item zerado ou abaixo de 3
+        </div>`;
+      } else {
+        if(zeros.length>0){
+          html+=`<div class="cs"><div class="ct red">🔴 Sem estoque — ${zeros.length} ${zeros.length===1?"item":"itens"}</div>`;
+          zeros.forEach(item=>{
+            const qtd = compra[item.id]!==undefined?compra[item.id]:10;
+            html+=`<div class="cr">
+              <div class="nome">${item.nome}</div>
+              <div class="cur" style="color:var(--red)">0</div>
+              <div class="qc">
+                <button class="qb" onclick="adjC('${item.id}',-1)">−</button>
+                <input type="number" min="0" value="${qtd}" onchange="setC('${item.id}',this.value)" />
+                <button class="qb" onclick="adjC('${item.id}',1)">+</button>
+              </div>
+            </div>`;
+          });
+          html+=`</div>`;
+        }
+        if(baixos.length>0){
+          html+=`<div class="cs"><div class="ct amb">🟡 Estoque baixo (≤ 3) — ${baixos.length} ${baixos.length===1?"item":"itens"}</div>`;
+          baixos.forEach(item=>{
+            const cur = stock[item.id]||0;
+            const qtd = compra[item.id]!==undefined?compra[item.id]:5;
+            html+=`<div class="cr">
+              <div class="nome">${item.nome}</div>
+              <div class="cur" style="color:var(--amber)">${cur}</div>
+              <div class="qc">
+                <button class="qb" onclick="adjC('${item.id}',-1)">−</button>
+                <input type="number" min="0" value="${qtd}" onchange="setC('${item.id}',this.value)" />
+                <button class="qb" onclick="adjC('${item.id}',1)">+</button>
+              </div>
+            </div>`;
+          });
+          html+=`</div>`;
+        }
+        html+=`<button class="wa" onclick="enviarWA()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          Enviar lista para WhatsApp
+        </button>`;
+      }
+    }
+
+    html+=`<p class="foot">Dados salvos localmente · CDC Fit Estoque v2.0</p></div>`;
+  }
+
+  if(page==="producao"){
+    html+=`<div class="page">
+      <div class="brand">CDC FIT</div>
+      <h1>Ordem de Produção</h1>
+      <p style="color:var(--text2);font-size:13px">Em breve.</p>
+    </div>`;
+  }
+
+  app.innerHTML = html;
+}
+
+// ── AÇÕES ──────────────────────────────────────────────────────────────────
+function setPage(p){page=p;render()}
+function setTab(t){tab=t;render()}
+function setBusca(v){busca=v;render()}
+
+function adjQty(id,d){qtys[id]=Math.max(1,(parseInt(qtys[id])||1)+d);render()}
+function setQty(id,v){qtys[id]=Math.max(1,parseInt(v)||1)}
+
+function move(id,tipo){
+  const qty=parseInt(qtys[id])||1;
+  const cur=stock[id]||0;
+  if(tipo==="out"&&cur<qty)return;
+  stock[id]=tipo==="in"?cur+qty:cur-qty;
+  sv(SK,stock);
+  const item=ITENS.find(i=>i.id===id);
+  const entry={id:Date.now(),nome:item.nome,t:tipo,qty,hora:th(),data:dh()};
+  log=[entry,...log].slice(0,300);
+  sv(LK,log);
+  flash[id]=tipo;
+  render();
+  setTimeout(()=>{delete flash[id];render()},700);
+  qtys[id]=1;
+}
+
+function clearLog(){log=[];sv(LK,log);render()}
+
+function adjC(id,d){compra[id]=Math.max(0,(parseInt(compra[id]!==undefined?compra[id]:d>0?9:1)+d));render()}
+function setC(id,v){compra[id]=Math.max(0,parseInt(v)||0)}
+
+function enviarWA(){
+  const zeros = ITENS.filter(i=>(stock[i.id]||0)===0);
+  const baixos = ITENS.filter(i=>{const s=stock[i.id]||0;return s>0&&s<=3});
+  const lZ=zeros.filter(i=>(compra[i.id]!==undefined?compra[i.id]:10)>0)
+    .map(i=>`• ${i.nome} → *${compra[i.id]!==undefined?compra[i.id]:10} un.*`);
+  const lB=baixos.filter(i=>(compra[i.id]!==undefined?compra[i.id]:5)>0)
+    .map(i=>`• ${i.nome} (estoque: ${stock[i.id]}) → *${compra[i.id]!==undefined?compra[i.id]:5} un.*`);
+  if(!lZ.length&&!lB.length)return;
+  let msg=`🛒 *Lista de Compras — CDC Fit*\n📅 ${dh()}\n\n`;
+  if(lZ.length)msg+=`🔴 *SEM ESTOQUE*\n${lZ.join("\n")}\n\n`;
+  if(lB.length)msg+=`🟡 *ESTOQUE BAIXO (≤ 3)*\n${lB.join("\n")}`;
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg.trim())}`, "_blank");
+}
+
+render();
+</script>
+</body>
 </html>
