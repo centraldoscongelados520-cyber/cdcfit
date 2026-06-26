@@ -1,0 +1,137 @@
+import { useState, useMemo } from "react";
+import { MARMITAS, CAT_COLORS, CATS, INGREDIENTES, RECEITAS, fmtVal, baseNum } from "./data.js";
+
+const SK = "cdcfit:producao:v1";
+const load = (key) => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch { return null; } };
+const save = (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} };
+
+export default function Producao() {
+  const [qtys, setQtys]   = useState(() => load(SK) || {});
+  const [tab, setTab]     = useState("marmitas");
+  const [filter, setFilter] = useState("TODOS");
+
+  const setQty = (num, val) => {
+    const v = Math.max(0, parseInt(val) || 0);
+    setQtys(q => { const n = { ...q, [num]: v }; save(SK, n); return n; });
+  };
+
+  const totalMarmitas  = useMemo(() => Object.values(qtys).reduce((a, b) => a + (parseInt(b) || 0), 0), [qtys]);
+  const marmitasAtivas = useMemo(() => MARMITAS.filter(m => (parseInt(qtys[m.num]) || 0) > 0).length, [qtys]);
+
+  const ingredientes = useMemo(() => {
+    const t = {};
+    MARMITAS.forEach(m => {
+      const q = parseInt(qtys[m.num]) || 0;
+      if (!q) return;
+      Object.entries(RECEITAS[m.num] || {}).forEach(([k, v]) => { t[k] = (t[k] || 0) + v * q; });
+    });
+    return t;
+  }, [qtys]);
+
+  const ingKeys  = useMemo(() => Object.keys(ingredientes).sort((a, b) => baseNum(a) - baseNum(b)), [ingredientes]);
+  const visible  = filter === "TODOS" ? MARMITAS : MARMITAS.filter(m => m.cat === filter);
+  const tem14    = (parseInt(qtys["14"]) || 0) > 0;
+
+  return (
+    <div className="page">
+      <div className="header">
+        <div>
+          <div className="brand">CDC FIT</div>
+          <h1>Ordem de Produção</h1>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {totalMarmitas > 0 && (
+            <span style={{ fontSize: 12, color: "var(--text-2)" }}>
+              {totalMarmitas} marmitas · {marmitasAtivas} tipos
+            </span>
+          )}
+          <button className="btn-danger-ghost" onClick={() => { setQtys({}); localStorage.removeItem(SK); }}>
+            Limpar tudo
+          </button>
+        </div>
+      </div>
+
+      <div className="tabs">
+        <button className={`tab ${tab === "marmitas" ? "active" : ""}`} onClick={() => setTab("marmitas")}>Marmitas</button>
+        <button className={`tab ${tab === "ingredientes" ? "active" : ""}`} onClick={() => setTab("ingredientes")}>
+          Ingredientes
+          {ingKeys.length > 0 && <span className="tab-badge">{ingKeys.length}</span>}
+        </button>
+      </div>
+
+      {tab === "marmitas" && (
+        <>
+          <div className="filter-row">
+            {CATS.map(c => (
+              <button key={c} onClick={() => setFilter(c)} className={`filter-btn ${filter === c ? "active" : ""}`}
+                style={filter === c && c !== "TODOS"
+                  ? { background: CAT_COLORS[c].bg, color: CAT_COLORS[c].text, borderColor: CAT_COLORS[c].border }
+                  : filter === c ? { background: "var(--text)", color: "var(--surface)", borderColor: "var(--text)" } : {}}
+              >{c}</button>
+            ))}
+          </div>
+          <div className="item-list">
+            {visible.map(m => {
+              const qty   = qtys[m.num] ?? 0;
+              const ativo = (parseInt(qty) || 0) > 0;
+              const col   = CAT_COLORS[m.cat];
+              return (
+                <div key={m.num} className={`item-row ${ativo ? "ativo" : ""}`}>
+                  <div className="item-num" style={{ background: col.bg, borderColor: col.border, color: col.text }}>{m.num}</div>
+                  <div className="item-info">
+                    <div className="item-nome" style={{ fontWeight: ativo ? 500 : 400 }}>{m.nome}</div>
+                    <span className="cat-tag" style={{ background: col.bg, color: col.text, borderColor: col.border }}>{m.cat}</span>
+                  </div>
+                  <div className="qty-controls">
+                    <button className="qty-btn" onClick={() => setQty(m.num, Math.max(0, (parseInt(qtys[m.num]) || 0) - 1))}>−</button>
+                    <input type="number" min="0" value={qty} onChange={e => setQty(m.num, e.target.value)} className="qty-input"
+                      style={{ fontWeight: ativo ? 600 : 400, color: ativo ? "var(--text)" : "var(--text-3)" }} />
+                    <button className="qty-btn" onClick={() => setQty(m.num, (parseInt(qtys[m.num]) || 0) + 1)}>+</button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {tab === "ingredientes" && (
+        <>
+          {ingKeys.length === 0 ? (
+            <div className="empty-state">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ opacity: 0.3, marginBottom: 12 }}>
+                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              Defina as quantidades na aba Marmitas
+            </div>
+          ) : (
+            <>
+              {tem14 && (
+                <div className="alert-amber">
+                  ⚠ Marmita 14: adicionar 3 caixas de creme de leite (600 g) ao frango antes de montar
+                </div>
+              )}
+              <div className="ing-list">
+                {ingKeys.map(key => {
+                  const i = INGREDIENTES[key]; if (!i) return null;
+                  return (
+                    <div key={key} className="ing-row">
+                      <span className="ing-base">{i.b || "—"}</span>
+                      <span className="ing-nome">{i.n}</span>
+                      <span className="ing-val">{fmtVal(key, ingredientes[key])}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="ing-total">
+                <strong>Total:</strong> {totalMarmitas} marmitas · {ingKeys.length} ingredientes
+              </div>
+            </>
+          )}
+        </>
+      )}
+
+      <p className="footer">Dados salvos localmente · CDC Fit Produção v1.0</p>
+    </div>
+  );
+}
