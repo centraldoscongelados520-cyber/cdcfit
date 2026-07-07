@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDC Fit — Estoque Matéria Prima</title>
+<style>
+  :root{--red:#E8271A;--bg:#111113;--surface:#1c1c1f;--surface2:#26262a;--border:#333336;--text:#f0f0f0;--muted:#888;--green:#22c55e;--orange:#f97316;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
+  header{background:var(--surface);border-bottom:2px solid var(--red);padding:12px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
+  .logo{font-size:18px;font-weight:800;color:var(--red);}
+  .logo span{color:var(--text);}
+  #clock{font-size:13px;color:var(--muted);margin-left:auto;}
+  .toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .search-box{flex:1;min-width:180px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:14px;outline:none;}
+  .search-box:focus{border-color:var(--red);}
+  .search-box::placeholder{color:var(--muted);}
+  .btn-tool{padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;}
+  .btn-tool:hover{color:var(--text);border-color:#555;}
+  .stats-bar{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;}
+  .stat{text-align:center;padding:10px 20px;border-right:1px solid var(--border);white-space:nowrap;}
+  .stat-val{font-size:20px;font-weight:800;}
+  .stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  .red{color:var(--red);} .orange{color:var(--orange);} .green{color:var(--green);}
+  .filters{display:flex;gap:6px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg);}
+  .filter-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;background:var(--surface);color:var(--muted);transition:all .15s;}
+  .section{padding:0 16px 16px;}
+  .section-header{display:flex;align-items:center;gap:10px;padding:14px 0 8px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+  .section-dot{width:10px;height:10px;border-radius:50%;}
+  .section-title{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+  .section-count{font-size:12px;color:var(--muted);margin-left:auto;}
+  .item-table{width:100%;border-collapse:collapse;}
+  .item-table th{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:6px 8px;text-align:left;font-weight:600;}
+  .item-row{border-top:1px solid var(--border);transition:background .1s;}
+  .item-row:hover{background:var(--surface);}
+  .item-row.zero{background:rgba(232,39,26,.06);}
+  .item-row.low{background:rgba(249,115,22,.06);}
+  .item-row td{padding:9px 8px;vertical-align:middle;}
+  .item-name{font-size:14px;font-weight:500;}
+  .item-spec{font-size:11px;color:var(--muted);display:block;margin-top:1px;}
+  .badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;display:inline-block;margin-left:6px;}
+  .badge.ok{background:#14532d;color:#86efac;}
+  .badge.low{background:#431407;color:#fdba74;}
+  .badge.zero{background:#450a0a;color:#f87171;}
+  .qty-cell{text-align:center;min-width:90px;}
+  .qty-val{font-size:22px;font-weight:800;cursor:pointer;transition:color .15s;display:inline-block;}
+  .qty-val:hover{color:var(--red);}
+  .qty-val.zero{color:var(--red);} .qty-val.low{color:var(--orange);}
+  .qty-unit{font-size:10px;color:var(--muted);}
+  .actions-cell{text-align:right;white-space:nowrap;}
+  .btn-sm{width:32px;height:32px;border-radius:7px;border:none;cursor:pointer;font-size:17px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;transition:transform .1s;}
+  .btn-sm:active{transform:scale(.9);}
+  .btn-plus{background:#14532d;color:var(--green);}
+  .btn-minus{background:#450a0a;color:#f87171;}
+  .btn-mov{padding:5px 10px;border-radius:6px;border:1px solid var(--border);font-size:11px;font-weight:600;cursor:pointer;background:var(--surface2);color:var(--muted);margin-left:4px;}
+  .btn-mov:hover{color:var(--text);border-color:#555;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
+  .modal-overlay.hidden{display:none;}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:360px;max-height:85vh;overflow-y:auto;}
+  .modal-title{font-size:16px;font-weight:700;margin-bottom:4px;}
+  .modal-subtitle{font-size:12px;color:var(--muted);margin-bottom:18px;}
+  .modal label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;margin-top:12px;}
+  .modal input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:14px;outline:none;}
+  .modal input:focus{border-color:var(--red);}
+  .modal input[type="number"]{font-size:26px;font-weight:700;text-align:center;}
+  .modal-actions{display:flex;gap:8px;margin-top:20px;}
+  .btn-confirm{flex:1;padding:12px;border-radius:8px;border:none;font-size:14px;font-weight:700;cursor:pointer;}
+  .btn-confirm.entrada{background:var(--green);color:#000;}
+  .btn-confirm.saida{background:#ef4444;color:#fff;}
+  .btn-confirm.ajuste{background:var(--red);color:#fff;}
+  .btn-cancel{padding:12px 16px;border-radius:8px;border:1px solid var(--border);font-size:14px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);}
+  .hist-list{max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;}
+  .hist-item{padding:8px 10px;border-radius:8px;background:var(--surface2);display:flex;gap:8px;align-items:center;}
+  .hist-icon{font-size:15px;min-width:22px;text-align:center;}
+  .hist-detail{flex:1;}
+  .hist-detail strong{font-size:13px;display:block;}
+  .hist-detail span{font-size:11px;color:var(--muted);}
+  .hist-qty{font-size:13px;font-weight:700;}
+  .hist-qty.pos{color:var(--green);} .hist-qty.neg{color:#f87171;}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;z-index:300;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;}
+  .toast.show{opacity:1;}
+  @media(max-width:480px){.hide-mob{display:none;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">CDC<span>Fit</span></div>
+  <div style="width:1px;height:24px;background:var(--border)"></div>
+  <span style="font-size:14px;font-weight:600;">Estoque Matéria Prima</span>
+  <span id="clock"></span>
+</header>
+<div class="toolbar">
+  <input class="search-box" type="text" id="searchInput" placeholder="🔍 Buscar item..." oninput="render()">
+  <button class="btn-tool" onclick="openHistGeral()">📋 Histórico</button>
+  <button class="btn-tool" onclick="exportCSV()">⬇ CSV</button>
+</div>
+<div class="stats-bar" id="statsBar"></div>
+<div class="filters" id="filters"></div>
+<div id="main"></div>
+
+<!-- MODAL MOVIMENTO -->
+<div class="modal-overlay hidden" id="modalMov">
+  <div class="modal">
+    <div class="modal-title" id="movTitle"></div>
+    <div class="modal-subtitle" id="movSubtitle"></div>
+    <label>Quantidade</label>
+    <input type="number" id="movQty" value="1" min="0.01" step="0.01">
+    <label>Observação (opcional)</label>
+    <input type="text" id="movObs" placeholder="Ex: compra, devolução...">
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeMov()">Cancelar</button>
+      <button class="btn-confirm" id="btnMovConfirm" onclick="confirmMov()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AJUSTE -->
+<div class="modal-overlay hidden" id="modalAjuste">
+  <div class="modal">
+    <div class="modal-title">Ajuste de Estoque</div>
+    <div class="modal-subtitle" id="ajSubtitle"></div>
+    <label>Quantidade atual</label>
+    <input type="number" id="ajQty" value="0" min="0" step="0.01">
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeAjuste()">Cancelar</button>
+      <button class="btn-confirm ajuste" onclick="confirmAjuste()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL HISTÓRICO -->
+<div class="modal-overlay hidden" id="modalHist">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-title" id="histTitle">Histórico</div>
+    <div class="modal-subtitle" id="histSubtitle"></div>
+    <div class="hist-list" id="histList"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" style="flex:1" onclick="closeHist()">Fechar</button>
+      <button class="btn-confirm saida" onclick="clearHist()">Limpar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CATS = {
+  proteinas:        {label:'Proteínas',         emoji:'🥩', color:'#dc2626'},
+  hortifruti:       {label:'Hortifruti e Cong.', emoji:'🥦', color:'#16a34a'},
+  graos:            {label:'Grãos e Bases',      emoji:'🌾', color:'#ca8a04'},
+  laticinios:       {label:'Laticínios',         emoji:'🧀', color:'#d97706'},
+  temperos:         {label:'Temperos',           emoji:'🧂', color:'#7c3aed'},
+  industrializados: {label:'Industrializados',   emoji:'🥫', color:'#0369a1'},
+  limpeza:          {label:'Limpeza',            emoji:'🧹', color:'#0f766e'},
+  doces:            {label:'Doces e Apoio',      emoji:'🍫', color:'#be185d'},
+  frutas:           {label:'Frutas',             emoji:'🍊', color:'#ea580c'},
+};
+const CAT_ORDER = ['proteinas','hortifruti','graos','laticinios','temperos','industrializados','limpeza','doces','frutas'];
+
+const ITEMS = [
+  // PROTEÍNAS
+  {id:1,  cat:'proteinas',        nome:'Ovo',                   spec:'',                        un:'dúzia'},
+  {id:2,  cat:'proteinas',        nome:'Carne moída',           spec:'Boi Forte',               un:'kg'},
+  {id:3,  cat:'proteinas',        nome:'Patinho',               spec:'',                        un:'kg'},
+  {id:4,  cat:'proteinas',        nome:'Pernil',                spec:'Sem osso e sem pele',     un:'kg'},
+  {id:5,  cat:'proteinas',        nome:'Sobrecoxa',             spec:'',                        un:'kg'},
+  {id:6,  cat:'proteinas',        nome:'Salmão',                spec:'',                        un:'kg'},
+  {id:7,  cat:'proteinas',        nome:'Tilápia',               spec:'',                        un:'kg'},
+  {id:8,  cat:'proteinas',        nome:'Calabresa',             spec:'',                        un:'kg'},
+  {id:9,  cat:'proteinas',        nome:'Linguiça toscana',      spec:'',                        un:'kg'},
+  {id:10, cat:'proteinas',        nome:'Almôndega',             spec:'',                        un:'kg'},
+  // HORTIFRUTI
+  {id:11, cat:'hortifruti',       nome:'Brócolis congelado',    spec:'',                        un:'pct'},
+  {id:12, cat:'hortifruti',       nome:'Couve-flor congelada',  spec:'',                        un:'pct'},
+  {id:13, cat:'hortifruti',       nome:'Vagem congelada',       spec:'',                        un:'pct'},
+  {id:14, cat:'hortifruti',       nome:'Alho',                  spec:'',                        un:'kg'},
+  {id:15, cat:'hortifruti',       nome:'Cebola',                spec:'',                        un:'kg'},
+  {id:16, cat:'hortifruti',       nome:'Tomate',                spec:'',                        un:'kg'},
+  {id:17, cat:'hortifruti',       nome:'Salsinha',              spec:'',                        un:'maço'},
+  {id:18, cat:'hortifruti',       nome:'Batata',                spec:'',                        un:'kg'},
+  {id:19, cat:'hortifruti',       nome:'Alho-poró',             spec:'',                        un:'kg'},
+  {id:20, cat:'hortifruti',       nome:'Pimentão',              spec:'',                        un:'kg'},
+  {id:21, cat:'hortifruti',       nome:'Cabotiá',               spec:'',                        un:'kg'},
+  {id:22, cat:'hortifruti',       nome:'Manjericão',            spec:'',                        un:'maço'},
+  {id:23, cat:'hortifruti',       nome:'Couve',                 spec:'',                        un:'maço'},
+  // GRÃOS
+  {id:24, cat:'graos',            nome:'Arroz parbolizado tipo 1', spec:'O mais barato',        un:'kg'},
+  {id:25, cat:'graos',            nome:'Feijão carioca',        spec:'Marca Pantera',           un:'kg'},
+  {id:26, cat:'graos',            nome:'Feijão preto',          spec:'Marca Pantera',           un:'kg'},
+  {id:27, cat:'graos',            nome:'Macarrão fusili grão duro', spec:'',                   un:'pct'},
+  {id:28, cat:'graos',            nome:'Macarrão pene grão duro',  spec:'',                   un:'pct'},
+  {id:29, cat:'graos',            nome:'Macarrão fusili ovo',   spec:'',                        un:'pct'},
+  {id:30, cat:'graos',            nome:'Macarrão de yakissoba', spec:'',                        un:'pct'},
+  {id:31, cat:'graos',            nome:'Farinha de aveia',      spec:'',                        un:'pct'},
+  {id:32, cat:'graos',            nome:'Farelo de aveia',       spec:'',                        un:'pct'},
+  {id:33, cat:'graos',            nome:'Maisena',               spec:'',                        un:'cx'},
+  // LATICÍNIOS
+  {id:34, cat:'laticinios',       nome:'Leite desnatado',       spec:'',                        un:'L'},
+  {id:35, cat:'laticinios',       nome:'Creme de leite desnatado', spec:'',                   un:'cx'},
+  {id:36, cat:'laticinios',       nome:'Leite condensado',      spec:'',                        un:'cx'},
+  {id:37, cat:'laticinios',       nome:'Mussarela',             spec:'Apolo',                   un:'kg'},
+  {id:38, cat:'laticinios',       nome:'Queijo ralado',         spec:'Quatá ou Vigor',          un:'pct'},
+  {id:39, cat:'laticinios',       nome:'Cream cheese',          spec:'Bisnaga 1kg',             un:'bisnaga'},
+  {id:40, cat:'laticinios',       nome:'Margarina',             spec:'',                        un:'kg'},
+  // TEMPEROS
+  {id:41, cat:'temperos',         nome:'Café',                  spec:'',                        un:'pct'},
+  {id:42, cat:'temperos',         nome:'Açúcar',                spec:'',                        un:'kg'},
+  {id:43, cat:'temperos',         nome:'Óleo de soja',          spec:'',                        un:'un'},
+  {id:44, cat:'temperos',         nome:'Sal',                   spec:'',                        un:'kg'},
+  {id:45, cat:'temperos',         nome:'Páprica defumada',      spec:'',                        un:'pct'},
+  {id:46, cat:'temperos',         nome:'Tempero seco',          spec:'Alho, cebola e salsa',    un:'pct'},
+  {id:47, cat:'temperos',         nome:'Shoyu',                 spec:'',                        un:'L'},
+  {id:48, cat:'temperos',         nome:'Molho de ostra',        spec:'',                        un:'un'},
+  {id:49, cat:'temperos',         nome:'Óleo de gergelim',      spec:'',                        un:'un'},
+  // INDUSTRIALIZADOS
+  {id:50, cat:'industrializados', nome:'Milho',                 spec:'Bag',                     un:'bag'},
+  {id:51, cat:'industrializados', nome:'Palmito pupunha picado',spec:'',                        un:'vidro'},
+  {id:52, cat:'industrializados', nome:'Molho de tomate',       spec:'Bag Fugi',                un:'bag'},
+  // LIMPEZA
+  {id:53, cat:'limpeza',          nome:'Água Sanitária',        spec:'',                        un:'un'},
+  {id:54, cat:'limpeza',          nome:'Toca descartável',      spec:'',                        un:'pct'},
+  {id:55, cat:'limpeza',          nome:'Luva descartável',      spec:'',                        un:'pct'},
+  {id:56, cat:'limpeza',          nome:'Desinfetante',          spec:'',                        un:'un'},
+  {id:57, cat:'limpeza',          nome:'Saco de lixo',          spec:'',                        un:'rolo'},
+  // DOCES
+  {id:58, cat:'doces',            nome:'Bolacha maisena tradicional', spec:'',                 un:'pct'},
+  {id:59, cat:'doces',            nome:'Bolacha maisena diet',  spec:'',                        un:'pct'},
+  {id:60, cat:'doces',            nome:'Chocolate diet',        spec:'',                        un:'barra'},
+  {id:61, cat:'doces',            nome:'Chocolate meio amargo', spec:'',                        un:'barra'},
+  // FRUTAS
+  {id:62, cat:'frutas',           nome:'Laranja pera',          spec:'',                        un:'kg'},
+  {id:63, cat:'frutas',           nome:'Limão siciliano',       spec:'',                        un:'kg'},
+];
+
+const LOW = 3;
+let stock = {}, hist = [], activeCat = 'TODOS', movState = {}, ajState = {};
+
+function load() {
+  try { stock = JSON.parse(localStorage.getItem('cdcfit_mp2_stock') || '{}'); } catch(_){}
+  try { hist  = JSON.parse(localStorage.getItem('cdcfit_mp2_hist')  || '[]'); } catch(_){}
+  ITEMS.forEach(i => { if (stock[i.id] === undefined) stock[i.id] = 0; });
+}
+function save() {
+  localStorage.setItem('cdcfit_mp2_stock', JSON.stringify(stock));
+  localStorage.setItem('cdcfit_mp2_hist',  JSON.stringify(hist));
+}
+
+function status(qty) {
+  if (qty === 0)   return {cls:'zero', label:'ZERADO'};
+  if (qty <= LOW)  return {cls:'low',  label:'BAIXO'};
+  return              {cls:'ok',   label:'OK'};
+}
+
+function renderStats() {
+  const total   = ITEMS.length;
+  const zeroed  = ITEMS.filter(i => (stock[i.id]||0) === 0).length;
+  const low     = ITEMS.filter(i => (stock[i.id]||0) > 0 && (stock[i.id]||0) <= LOW).length;
+  const ok      = total - zeroed - low;
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat"><div class="stat-val">${total}</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-val green">${ok}</div><div class="stat-label">OK</div></div>
+    <div class="stat"><div class="stat-val orange">${low}</div><div class="stat-label">Baixo</div></div>
+    <div class="stat"><div class="stat-val red">${zeroed}</div><div class="stat-label">Zerados</div></div>`;
+}
+
+function renderFilters() {
+  const all = ['TODOS', ...CAT_ORDER];
+  document.getElementById('filters').innerHTML = all.map(c => {
+    const info = CATS[c];
+    const active = activeCat === c;
+    const bg = active ? (c === 'TODOS' ? 'var(--red)' : (info?.color || 'var(--red)')) : '';
+    const style = active ? `background:${bg};border-color:transparent;color:#fff` : '';
+    return `<button class="filter-btn" style="${style}" onclick="setFilter('${c}')">${info ? info.emoji+' '+info.label : 'Todos'}</button>`;
+  }).join('');
+}
+
+function setFilter(cat) { activeCat = cat; renderFilters(); render(); }
+
+function render() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = ITEMS.filter(i => {
+    const matchCat = activeCat === 'TODOS' || i.cat === activeCat;
+    const matchQ   = !q || i.nome.toLowerCase().includes(q) || (i.spec||'').toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+
+  if (!filtered.length) {
+    document.getElementById('main').innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--muted)">🔍 Nenhum item encontrado</div>`;
+    return;
+  }
+
+  const cats = activeCat === 'TODOS' ? CAT_ORDER : [activeCat];
+  let html = '';
+  cats.forEach(cat => {
+    const its = filtered.filter(i => i.cat === cat);
+    if (!its.length) return;
+    const info = CATS[cat];
+    html += `<div class="section">
+      <div class="section-header">
+        <div class="section-dot" style="background:${info.color}"></div>
+        <span class="section-title">${info.emoji} ${info.label}</span>
+        <span class="section-count">${its.length} itens</span>
+      </div>
+      <table class="item-table">
+        <thead><tr>
+          <th>Item</th>
+          <th style="text-align:center;width:100px">Estoque</th>
+          <th style="text-align:right;width:160px" class="hide-mob">Ações</th>
+        </tr></thead>
+        <tbody>${its.map(item => {
+          const qty = stock[item.id] || 0;
+          const st  = status(qty);
+          const qtyDisp = qty % 1 === 0 ? qty : qty.toFixed(2);
+          return `<tr class="item-row ${st.cls}">
+            <td>
+              <span class="item-name">${item.nome}</span>
+              ${item.spec ? `<span class="item-spec">${item.spec}</span>` : ''}
+              <span class="badge ${st.cls}">${st.label}</span>
+            </td>
+            <td class="qty-cell">
+              <span class="qty-val ${st.cls}" onclick="openAjuste(${item.id})" title="Clique para ajustar">${qtyDisp}</span>
+              <div class="qty-unit">${item.un}</div>
+            </td>
+            <td class="actions-cell hide-mob">
+              <button class="btn-sm btn-plus"  onclick="quick(${item.id},1)"  title="+1">＋</button>
+              <button class="btn-sm btn-minus" onclick="quick(${item.id},-1)" title="−1">－</button>
+              <button class="btn-mov" onclick="openMov(${item.id},'entrada')">Entrada</button>
+              <button class="btn-mov" onclick="openMov(${item.id},'saida')">Saída</button>
+            </td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>`;
+  });
+  document.getElementById('main').innerHTML = html;
+  renderStats();
+}
+
+function quick(id, delta) {
+  const item = ITEMS.find(i => i.id === id);
+  const cur = stock[id] || 0;
+  if (delta < 0 && cur <= 0) { toast('Estoque zerado'); return; }
+  stock[id] = Math.max(0, +(cur + delta).toFixed(2));
+  hist.unshift({id, nome:item.nome, tipo:delta>0?'entrada':'saida', qty:Math.abs(delta), un:item.un, obs:'', ts:new Date().toISOString()});
+  if (hist.length > 500) hist = hist.slice(0,500);
+  save(); render();
+  toast((delta>0?'+':'-')+'1 '+item.un+' — '+item.nome);
+}
+
+function openMov(id, tipo) {
+  const item = ITEMS.find(i => i.id === id);
+  movState = {id, tipo};
+  document.getElementById('movTitle').textContent = tipo==='entrada' ? '📦 Entrada' : '📤 Saída';
+  document.getElementById('movSubtitle').textContent = item.nome + ' ('+item.un+')';
+  document.getElementById('movQty').value = 1;
+  document.getElementById('movObs').value = '';
+  const btn = document.getElementById('btnMovConfirm');
+  btn.textContent = tipo==='entrada' ? 'Confirmar Entrada' : 'Confirmar Saída';
+  btn.className = 'btn-confirm '+tipo;
+  document.getElementById('modalMov').classList.remove('hidden');
+  setTimeout(() => document.getElementById('movQty').focus(), 80);
+}
+function closeMov() { document.getElementById('modalMov').classList.add('hidden'); }
+function confirmMov() {
+  const {id, tipo} = movState;
+  const item = ITEMS.find(i => i.id === id);
+  const qty = parseFloat(document.getElementById('movQty').value) || 0;
+  const obs = document.getElementById('movObs').value.trim();
+  if (qty <= 0) { toast('Quantidade inválida'); return; }
+  const cur = stock[id] || 0;
+  if (tipo === 'saida' && cur < qty) { toast('Estoque insuficiente'); return; }
+  stock[id] = Math.max(0, +(cur + (tipo==='entrada' ? qty : -qty)).toFixed(2));
+  hist.unshift({id, nome:item.nome, tipo, qty, un:item.un, obs, ts:new Date().toISOString()});
+  if (hist.length > 500) hist = hist.slice(0,500);
+  save(); closeMov(); render();
+  toast((tipo==='entrada'?'+':'-')+qty+' '+item.un+' — '+item.nome);
+}
+
+function openAjuste(id) {
+  const item = ITEMS.find(i => i.id === id);
+  ajState = {id};
+  document.getElementById('ajSubtitle').textContent = item.nome + ' ('+item.un+')';
+  document.getElementById('ajQty').value = stock[id] || 0;
+  document.getElementById('modalAjuste').classList.remove('hidden');
+  setTimeout(() => document.getElementById('ajQty').select(), 80);
+}
+function closeAjuste() { document.getElementById('modalAjuste').classList.add('hidden'); }
+function confirmAjuste() {
+  const {id} = ajState;
+  const item = ITEMS.find(i => i.id === id);
+  const qty = parseFloat(document.getElementById('ajQty').value);
+  if (isNaN(qty) || qty < 0) { toast('Valor inválido'); return; }
+  const anterior = stock[id] || 0;
+  stock[id] = qty;
+  hist.unshift({id, nome:item.nome, tipo:'ajuste', qty, un:item.un, obs:'anterior: '+anterior, ts:new Date().toISOString()});
+  save(); closeAjuste(); render();
+  toast('Ajustado para '+qty+' '+item.un);
+}
+
+function openHistGeral() {
+  document.getElementById('histTitle').textContent = 'Histórico Geral';
+  document.getElementById('histSubtitle').textContent = hist.length+' movimentos';
+  document.getElementById('histList').innerHTML = histHTML(hist.slice(0,100));
+  document.getElementById('modalHist').classList.remove('hidden');
+}
+function closeHist() { document.getElementById('modalHist').classList.add('hidden'); }
+function clearHist() {
+  if (!confirm('Limpar todo o histórico?')) return;
+  hist = []; save();
+  document.getElementById('modalHist').classList.add('hidden');
+  toast('Histórico limpo');
+}
+function histHTML(list) {
+  if (!list.length) return '<div style="color:var(--muted);text-align:center;padding:20px;font-size:13px">Sem movimentos</div>';
+  return list.map(h => {
+    const icon  = h.tipo==='entrada'?'📦':h.tipo==='saida'?'📤':'✏️';
+    const cls   = h.tipo==='entrada'?'pos':h.tipo==='saida'?'neg':'';
+    const sign  = h.tipo==='entrada'?'+':h.tipo==='saida'?'−':'=';
+    const dt    = new Date(h.ts);
+    const dtStr = dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="hist-item">
+      <div class="hist-icon">${icon}</div>
+      <div class="hist-detail"><strong>${h.nome}</strong><span>${dtStr}${h.obs?' · '+h.obs:''}</span></div>
+      <div class="hist-qty ${cls}">${sign}${h.qty}${h.un}</div>
+    </div>`;
+  }).join('');
+}
+
+function exportCSV() {
+  const lines = ['Item,Categoria,Unidade,Estoque'];
+  ITEMS.forEach(i => lines.push(`"${i.nome}","${CATS[i.cat].label}","${i.un}",${stock[i.id]||0}`));
+  const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'estoque-mp-'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+  toast('CSV exportado!');
+}
+
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function tick() { document.getElementById('clock').textContent = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+setInterval(tick,1000); tick();
+
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') { closeMov(); closeAjuste(); closeHist(); }
+  if (e.key==='Enter') {
+    if (!document.getElementById('modalMov').classList.contains('hidden'))    confirmMov();
+    else if (!document.getElementById('modalAjuste').classList.contains('hidden')) confirmAjuste();
+  }
+});
+
+load(); renderFilters(); render();
+</script>
+</body>
+</html>
