@@ -3,6 +3,7 @@
   "outputDirectory": ".",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/estoque-materia-prima.html", "destination": "/estoque-materia-prima.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
