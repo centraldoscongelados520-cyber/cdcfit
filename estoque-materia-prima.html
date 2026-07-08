@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CDC Fit — Estoque Matéria Prima</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{--red:#E8271A;--bg:#111113;--surface:#1c1c1f;--surface2:#26262a;--border:#333336;--text:#f0f0f0;--muted:#888;--green:#22c55e;--orange:#f97316;}
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -22,7 +23,7 @@
   .stat{text-align:center;padding:10px 20px;border-right:1px solid var(--border);white-space:nowrap;}
   .stat-val{font-size:20px;font-weight:800;}
   .stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
-  .red{color:var(--red);} .orange{color:var(--orange);} .green{color:var(--green);}
+  .red{color:var(--red);}.orange{color:var(--orange);}.green{color:var(--green);}
   .filters{display:flex;gap:6px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg);}
   .filter-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;background:var(--surface);color:var(--muted);transition:all .15s;}
   .section{padding:0 16px 16px;}
@@ -38,7 +39,6 @@
   .item-row.low{background:rgba(249,115,22,.06);}
   .item-row td{padding:9px 8px;vertical-align:middle;}
   .item-name{font-size:14px;font-weight:500;}
-  .item-spec{font-size:11px;color:var(--muted);display:block;margin-top:1px;}
   .badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;display:inline-block;margin-left:6px;}
   .badge.ok{background:#14532d;color:#86efac;}
   .badge.low{background:#431407;color:#fdba74;}
@@ -46,7 +46,7 @@
   .qty-cell{text-align:center;min-width:90px;}
   .qty-val{font-size:22px;font-weight:800;cursor:pointer;transition:color .15s;display:inline-block;}
   .qty-val:hover{color:var(--red);}
-  .qty-val.zero{color:var(--red);} .qty-val.low{color:var(--orange);}
+  .qty-val.zero{color:var(--red);}.qty-val.low{color:var(--orange);}
   .qty-unit{font-size:10px;color:var(--muted);}
   .actions-cell{text-align:right;white-space:nowrap;}
   .btn-sm{width:32px;height:32px;border-radius:7px;border:none;cursor:pointer;font-size:17px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;transition:transform .1s;}
@@ -77,9 +77,10 @@
   .hist-detail strong{font-size:13px;display:block;}
   .hist-detail span{font-size:11px;color:var(--muted);}
   .hist-qty{font-size:13px;font-weight:700;}
-  .hist-qty.pos{color:var(--green);} .hist-qty.neg{color:#f87171;}
+  .hist-qty.pos{color:var(--green);}.hist-qty.neg{color:#f87171;}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;z-index:300;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;}
   .toast.show{opacity:1;}
+  .loader{text-align:center;padding:60px 20px;color:var(--muted);}
   @media(max-width:480px){.hide-mob{display:none;}}
 </style>
 </head>
@@ -94,10 +95,11 @@
   <input class="search-box" type="text" id="searchInput" placeholder="🔍 Buscar item..." oninput="render()">
   <button class="btn-tool" onclick="openHistGeral()">📋 Histórico</button>
   <button class="btn-tool" onclick="exportCSV()">⬇ CSV</button>
+  <button class="btn-tool" onclick="loadItems()" id="btnSync">🔄 Sync</button>
 </div>
 <div class="stats-bar" id="statsBar"></div>
 <div class="filters" id="filters"></div>
-<div id="main"></div>
+<div id="main"><div class="loader">Conectando ao banco...</div></div>
 
 <!-- MODAL MOVIMENTO -->
 <div class="modal-overlay hidden" id="modalMov">
@@ -145,125 +147,62 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const CATS = {
-  proteinas:        {label:'Proteínas',         emoji:'🥩', color:'#dc2626'},
-  hortifruti:       {label:'Hortifruti e Cong.', emoji:'🥦', color:'#16a34a'},
-  graos:            {label:'Grãos e Bases',      emoji:'🌾', color:'#ca8a04'},
-  laticinios:       {label:'Laticínios',         emoji:'🧀', color:'#d97706'},
-  temperos:         {label:'Temperos',           emoji:'🧂', color:'#7c3aed'},
-  industrializados: {label:'Industrializados',   emoji:'🥫', color:'#0369a1'},
-  limpeza:          {label:'Limpeza',            emoji:'🧹', color:'#0f766e'},
-  doces:            {label:'Doces e Apoio',      emoji:'🍫', color:'#be185d'},
-  frutas:           {label:'Frutas',             emoji:'🍊', color:'#ea580c'},
-};
-const CAT_ORDER = ['proteinas','hortifruti','graos','laticinios','temperos','industrializados','limpeza','doces','frutas'];
-
-const ITEMS = [
-  // PROTEÍNAS
-  {id:1,  cat:'proteinas',        nome:'Ovo',                   spec:'',                        un:'dúzia'},
-  {id:2,  cat:'proteinas',        nome:'Carne moída',           spec:'Boi Forte',               un:'kg'},
-  {id:3,  cat:'proteinas',        nome:'Patinho',               spec:'',                        un:'kg'},
-  {id:4,  cat:'proteinas',        nome:'Pernil',                spec:'Sem osso e sem pele',     un:'kg'},
-  {id:5,  cat:'proteinas',        nome:'Sobrecoxa',             spec:'',                        un:'kg'},
-  {id:6,  cat:'proteinas',        nome:'Salmão',                spec:'',                        un:'kg'},
-  {id:7,  cat:'proteinas',        nome:'Tilápia',               spec:'',                        un:'kg'},
-  {id:8,  cat:'proteinas',        nome:'Calabresa',             spec:'',                        un:'kg'},
-  {id:9,  cat:'proteinas',        nome:'Linguiça toscana',      spec:'',                        un:'kg'},
-  {id:10, cat:'proteinas',        nome:'Almôndega',             spec:'',                        un:'kg'},
-  // HORTIFRUTI
-  {id:11, cat:'hortifruti',       nome:'Brócolis congelado',    spec:'',                        un:'pct'},
-  {id:12, cat:'hortifruti',       nome:'Couve-flor congelada',  spec:'',                        un:'pct'},
-  {id:13, cat:'hortifruti',       nome:'Vagem congelada',       spec:'',                        un:'pct'},
-  {id:14, cat:'hortifruti',       nome:'Alho',                  spec:'',                        un:'kg'},
-  {id:15, cat:'hortifruti',       nome:'Cebola',                spec:'',                        un:'kg'},
-  {id:16, cat:'hortifruti',       nome:'Tomate',                spec:'',                        un:'kg'},
-  {id:17, cat:'hortifruti',       nome:'Salsinha',              spec:'',                        un:'maço'},
-  {id:18, cat:'hortifruti',       nome:'Batata',                spec:'',                        un:'kg'},
-  {id:19, cat:'hortifruti',       nome:'Alho-poró',             spec:'',                        un:'kg'},
-  {id:20, cat:'hortifruti',       nome:'Pimentão',              spec:'',                        un:'kg'},
-  {id:21, cat:'hortifruti',       nome:'Cabotiá',               spec:'',                        un:'kg'},
-  {id:22, cat:'hortifruti',       nome:'Manjericão',            spec:'',                        un:'maço'},
-  {id:23, cat:'hortifruti',       nome:'Couve',                 spec:'',                        un:'maço'},
-  // GRÃOS
-  {id:24, cat:'graos',            nome:'Arroz parbolizado tipo 1', spec:'O mais barato',        un:'kg'},
-  {id:25, cat:'graos',            nome:'Feijão carioca',        spec:'Marca Pantera',           un:'kg'},
-  {id:26, cat:'graos',            nome:'Feijão preto',          spec:'Marca Pantera',           un:'kg'},
-  {id:27, cat:'graos',            nome:'Macarrão fusili grão duro', spec:'',                   un:'pct'},
-  {id:28, cat:'graos',            nome:'Macarrão pene grão duro',  spec:'',                   un:'pct'},
-  {id:29, cat:'graos',            nome:'Macarrão fusili ovo',   spec:'',                        un:'pct'},
-  {id:30, cat:'graos',            nome:'Macarrão de yakissoba', spec:'',                        un:'pct'},
-  {id:31, cat:'graos',            nome:'Farinha de aveia',      spec:'',                        un:'pct'},
-  {id:32, cat:'graos',            nome:'Farelo de aveia',       spec:'',                        un:'pct'},
-  {id:33, cat:'graos',            nome:'Maisena',               spec:'',                        un:'cx'},
-  // LATICÍNIOS
-  {id:34, cat:'laticinios',       nome:'Leite desnatado',       spec:'',                        un:'L'},
-  {id:35, cat:'laticinios',       nome:'Creme de leite desnatado', spec:'',                   un:'cx'},
-  {id:36, cat:'laticinios',       nome:'Leite condensado',      spec:'',                        un:'cx'},
-  {id:37, cat:'laticinios',       nome:'Mussarela',             spec:'Apolo',                   un:'kg'},
-  {id:38, cat:'laticinios',       nome:'Queijo ralado',         spec:'Quatá ou Vigor',          un:'pct'},
-  {id:39, cat:'laticinios',       nome:'Cream cheese',          spec:'Bisnaga 1kg',             un:'bisnaga'},
-  {id:40, cat:'laticinios',       nome:'Margarina',             spec:'',                        un:'kg'},
-  // TEMPEROS
-  {id:41, cat:'temperos',         nome:'Café',                  spec:'',                        un:'pct'},
-  {id:42, cat:'temperos',         nome:'Açúcar',                spec:'',                        un:'kg'},
-  {id:43, cat:'temperos',         nome:'Óleo de soja',          spec:'',                        un:'un'},
-  {id:44, cat:'temperos',         nome:'Sal',                   spec:'',                        un:'kg'},
-  {id:45, cat:'temperos',         nome:'Páprica defumada',      spec:'',                        un:'pct'},
-  {id:46, cat:'temperos',         nome:'Tempero seco',          spec:'Alho, cebola e salsa',    un:'pct'},
-  {id:47, cat:'temperos',         nome:'Shoyu',                 spec:'',                        un:'L'},
-  {id:48, cat:'temperos',         nome:'Molho de ostra',        spec:'',                        un:'un'},
-  {id:49, cat:'temperos',         nome:'Óleo de gergelim',      spec:'',                        un:'un'},
-  {id:65, cat:'temperos',         nome:'Açúcar mascavo',         spec:'',                        un:'kg'},
-  // INDUSTRIALIZADOS
-  {id:50, cat:'industrializados', nome:'Milho',                 spec:'Bag',                     un:'bag'},
-  {id:51, cat:'industrializados', nome:'Palmito pupunha picado',spec:'',                        un:'vidro'},
-  {id:52, cat:'industrializados', nome:'Molho de tomate',       spec:'Bag Fugi',                un:'bag'},
-  {id:64, cat:'industrializados', nome:'Pão de forma',           spec:'',                        un:'pct'},
-  // LIMPEZA
-  {id:53, cat:'limpeza',          nome:'Água Sanitária',        spec:'',                        un:'un'},
-  {id:54, cat:'limpeza',          nome:'Toca descartável',      spec:'',                        un:'pct'},
-  {id:55, cat:'limpeza',          nome:'Luva descartável',      spec:'',                        un:'pct'},
-  {id:56, cat:'limpeza',          nome:'Desinfetante',          spec:'',                        un:'un'},
-  {id:57, cat:'limpeza',          nome:'Saco de lixo',          spec:'',                        un:'rolo'},
-  {id:66, cat:'limpeza',          nome:'Detergente',             spec:'',                        un:'un'},
-  {id:67, cat:'limpeza',          nome:'Papel higiênico',        spec:'',                        un:'pct'},
-  {id:68, cat:'limpeza',          nome:'Coador de café',         spec:'',                        un:'un'},
-  {id:69, cat:'limpeza',          nome:'Saco picotado',          spec:'',                        un:'rolo'},
-  // DOCES
-  {id:58, cat:'doces',            nome:'Pastel de baunilha',    spec:'',                        un:'un'},
-  {id:59, cat:'doces',            nome:'Pastel de caramelo',    spec:'',                        un:'un'},
-  {id:60, cat:'doces',            nome:'Pastel de KitKat',      spec:'',                        un:'un'},
-  // FRUTAS
-  {id:62, cat:'frutas',           nome:'Laranja pera',          spec:'',                        un:'kg'},
-  {id:63, cat:'frutas',           nome:'Limão siciliano',       spec:'',                        un:'kg'},
-];
-
+const SUPABASE_URL = 'https://slqcvqshhxftvmeiwcnu.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNscWN2cXNoaHhmdHZtZWl3Y251Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1ODIwOTMsImV4cCI6MjA5NDE1ODA5M30.FLGWl-NRePxoxItGT0GM2C3XjwbON89eRJWo6Uc7hgQ';
 const LOW = 3;
-let stock = {}, hist = [], activeCat = 'TODOS', movState = {}, ajState = {};
 
-function load() {
-  try { stock = JSON.parse(localStorage.getItem('cdcfit_mp2_stock') || '{}'); } catch(_){}
-  try { hist  = JSON.parse(localStorage.getItem('cdcfit_mp2_hist')  || '[]'); } catch(_){}
-  ITEMS.forEach(i => { if (stock[i.id] === undefined) stock[i.id] = 0; });
+const CATS = {
+  'Proteínas':      {emoji:'🥩', color:'#dc2626'},
+  'Hortifruti':     {emoji:'🥦', color:'#16a34a'},
+  'Grãos':          {emoji:'🌾', color:'#ca8a04'},
+  'Laticínios':     {emoji:'🧀', color:'#d97706'},
+  'Temperos':       {emoji:'🧂', color:'#7c3aed'},
+  'Industrializados':{emoji:'🥫', color:'#0369a1'},
+  'Limpeza':        {emoji:'🧹', color:'#0f766e'},
+  'Doces':          {emoji:'🍫', color:'#be185d'},
+  'Frutas':         {emoji:'🍊', color:'#ea580c'},
+};
+const CAT_ORDER = Object.keys(CATS);
+
+let sb, items = [], activeCat = 'TODOS', movState = {}, ajState = {};
+let hist = [];
+try { hist = JSON.parse(localStorage.getItem('cdcfit_mp_hist3') || '[]'); } catch(_){}
+
+async function init() {
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  await loadItems();
+  // realtime
+  sb.channel('stock_mp').on('postgres_changes',{event:'UPDATE',schema:'public',table:'stock_mp'}, payload => {
+    const idx = items.findIndex(i => i.id === payload.new.id);
+    if (idx >= 0) { items[idx] = payload.new; render(); }
+  }).subscribe();
 }
-function save() {
-  localStorage.setItem('cdcfit_mp2_stock', JSON.stringify(stock));
-  localStorage.setItem('cdcfit_mp2_hist',  JSON.stringify(hist));
+
+async function loadItems() {
+  document.getElementById('btnSync').textContent = '⏳';
+  const { data, error } = await sb.from('stock_mp').select('*').order('id');
+  if (error) {
+    document.getElementById('main').innerHTML = `<div class="loader">❌ Erro: ${error.message}</div>`;
+    document.getElementById('btnSync').textContent = '🔄 Sync';
+    return;
+  }
+  items = data || [];
+  renderFilters(); render(); renderStats();
+  document.getElementById('btnSync').textContent = '🔄 Sync';
 }
 
 function status(qty) {
-  if (qty === 0)   return {cls:'zero', label:'ZERADO'};
-  if (qty <= LOW)  return {cls:'low',  label:'BAIXO'};
-  return              {cls:'ok',   label:'OK'};
+  if (qty === 0)    return {cls:'zero', label:'ZERADO'};
+  if (qty <= LOW)   return {cls:'low',  label:'BAIXO'};
+  return               {cls:'ok',   label:'OK'};
 }
 
 function renderStats() {
-  const total   = ITEMS.length;
-  const zeroed  = ITEMS.filter(i => (stock[i.id]||0) === 0).length;
-  const low     = ITEMS.filter(i => (stock[i.id]||0) > 0 && (stock[i.id]||0) <= LOW).length;
-  const ok      = total - zeroed - low;
+  const zeroed = items.filter(i => (i.quantidade||0) === 0).length;
+  const low    = items.filter(i => (i.quantidade||0) > 0 && (i.quantidade||0) <= LOW).length;
+  const ok     = items.length - zeroed - low;
   document.getElementById('statsBar').innerHTML = `
-    <div class="stat"><div class="stat-val">${total}</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-val">${items.length}</div><div class="stat-label">Total</div></div>
     <div class="stat"><div class="stat-val green">${ok}</div><div class="stat-label">OK</div></div>
     <div class="stat"><div class="stat-val orange">${low}</div><div class="stat-label">Baixo</div></div>
     <div class="stat"><div class="stat-val red">${zeroed}</div><div class="stat-label">Zerados</div></div>`;
@@ -274,9 +213,9 @@ function renderFilters() {
   document.getElementById('filters').innerHTML = all.map(c => {
     const info = CATS[c];
     const active = activeCat === c;
-    const bg = active ? (c === 'TODOS' ? 'var(--red)' : (info?.color || 'var(--red)')) : '';
+    const bg = active ? (c==='TODOS' ? 'var(--red)' : info?.color) : '';
     const style = active ? `background:${bg};border-color:transparent;color:#fff` : '';
-    return `<button class="filter-btn" style="${style}" onclick="setFilter('${c}')">${info ? info.emoji+' '+info.label : 'Todos'}</button>`;
+    return `<button class="filter-btn" style="${style}" onclick="setFilter('${c}')">${info ? info.emoji+' '+c : 'Todos'}</button>`;
   }).join('');
 }
 
@@ -284,27 +223,25 @@ function setFilter(cat) { activeCat = cat; renderFilters(); render(); }
 
 function render() {
   const q = document.getElementById('searchInput').value.toLowerCase();
-  const filtered = ITEMS.filter(i => {
-    const matchCat = activeCat === 'TODOS' || i.cat === activeCat;
-    const matchQ   = !q || i.nome.toLowerCase().includes(q) || (i.spec||'').toLowerCase().includes(q);
+  const filtered = items.filter(i => {
+    const matchCat = activeCat === 'TODOS' || i.categoria === activeCat;
+    const matchQ   = !q || i.nome.toLowerCase().includes(q);
     return matchCat && matchQ;
   });
-
   if (!filtered.length) {
-    document.getElementById('main').innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--muted)">🔍 Nenhum item encontrado</div>`;
+    document.getElementById('main').innerHTML = `<div class="loader">🔍 Nenhum item encontrado</div>`;
     return;
   }
-
   const cats = activeCat === 'TODOS' ? CAT_ORDER : [activeCat];
   let html = '';
   cats.forEach(cat => {
-    const its = filtered.filter(i => i.cat === cat);
+    const its = filtered.filter(i => i.categoria === cat);
     if (!its.length) return;
     const info = CATS[cat];
     html += `<div class="section">
       <div class="section-header">
         <div class="section-dot" style="background:${info.color}"></div>
-        <span class="section-title">${info.emoji} ${info.label}</span>
+        <span class="section-title">${info.emoji} ${cat}</span>
         <span class="section-count">${its.length} itens</span>
       </div>
       <table class="item-table">
@@ -314,22 +251,18 @@ function render() {
           <th style="text-align:right;width:160px" class="hide-mob">Ações</th>
         </tr></thead>
         <tbody>${its.map(item => {
-          const qty = stock[item.id] || 0;
+          const qty = item.quantidade || 0;
           const st  = status(qty);
           const qtyDisp = qty % 1 === 0 ? qty : qty.toFixed(2);
           return `<tr class="item-row ${st.cls}">
-            <td>
-              <span class="item-name">${item.nome}</span>
-              ${item.spec ? `<span class="item-spec">${item.spec}</span>` : ''}
-              <span class="badge ${st.cls}">${st.label}</span>
-            </td>
+            <td><span class="item-name">${item.nome}</span><span class="badge ${st.cls}">${st.label}</span></td>
             <td class="qty-cell">
               <span class="qty-val ${st.cls}" onclick="openAjuste(${item.id})" title="Clique para ajustar">${qtyDisp}</span>
-              <div class="qty-unit">${item.un}</div>
+              <div class="qty-unit">${item.unidade}</div>
             </td>
             <td class="actions-cell hide-mob">
-              <button class="btn-sm btn-plus"  onclick="quick(${item.id},1)"  title="+1">＋</button>
-              <button class="btn-sm btn-minus" onclick="quick(${item.id},-1)" title="−1">－</button>
+              <button class="btn-sm btn-plus"  onclick="quick(${item.id},1)">＋</button>
+              <button class="btn-sm btn-minus" onclick="quick(${item.id},-1)">－</button>
               <button class="btn-mov" onclick="openMov(${item.id},'entrada')">Entrada</button>
               <button class="btn-mov" onclick="openMov(${item.id},'saida')">Saída</button>
             </td>
@@ -342,99 +275,103 @@ function render() {
   renderStats();
 }
 
-function quick(id, delta) {
-  const item = ITEMS.find(i => i.id === id);
-  const cur = stock[id] || 0;
-  if (delta < 0 && cur <= 0) { toast('Estoque zerado'); return; }
-  stock[id] = Math.max(0, +(cur + delta).toFixed(2));
-  hist.unshift({id, nome:item.nome, tipo:delta>0?'entrada':'saida', qty:Math.abs(delta), un:item.un, obs:'', ts:new Date().toISOString()});
+async function updateQty(id, newQty, tipo, qty, obs) {
+  const item = items.find(i => i.id === id);
+  const { error } = await sb.from('stock_mp').update({ quantidade: newQty }).eq('id', id);
+  if (error) { toast('Erro: ' + error.message); return; }
+  item.quantidade = newQty;
+  hist.unshift({ id, nome: item.nome, tipo, qty, un: item.unidade, obs, ts: new Date().toISOString() });
   if (hist.length > 500) hist = hist.slice(0,500);
-  save(); render();
-  toast((delta>0?'+':'-')+'1 '+item.un+' — '+item.nome);
+  try { localStorage.setItem('cdcfit_mp_hist3', JSON.stringify(hist)); } catch(_){}
+  render();
+  toast((tipo==='entrada'?'+':tipo==='saida'?'−':'=') + qty + ' ' + item.unidade + ' — ' + item.nome);
+}
+
+async function quick(id, delta) {
+  const item = items.find(i => i.id === id);
+  const cur = item.quantidade || 0;
+  if (delta < 0 && cur <= 0) { toast('Estoque zerado'); return; }
+  await updateQty(id, Math.max(0, +(cur+delta).toFixed(2)), delta>0?'entrada':'saida', Math.abs(delta), '');
 }
 
 function openMov(id, tipo) {
-  const item = ITEMS.find(i => i.id === id);
+  const item = items.find(i => i.id === id);
   movState = {id, tipo};
   document.getElementById('movTitle').textContent = tipo==='entrada' ? '📦 Entrada' : '📤 Saída';
-  document.getElementById('movSubtitle').textContent = item.nome + ' ('+item.un+')';
+  document.getElementById('movSubtitle').textContent = item.nome + ' (' + item.unidade + ')';
   document.getElementById('movQty').value = 1;
   document.getElementById('movObs').value = '';
   const btn = document.getElementById('btnMovConfirm');
   btn.textContent = tipo==='entrada' ? 'Confirmar Entrada' : 'Confirmar Saída';
-  btn.className = 'btn-confirm '+tipo;
+  btn.className = 'btn-confirm ' + tipo;
   document.getElementById('modalMov').classList.remove('hidden');
   setTimeout(() => document.getElementById('movQty').focus(), 80);
 }
 function closeMov() { document.getElementById('modalMov').classList.add('hidden'); }
-function confirmMov() {
+async function confirmMov() {
   const {id, tipo} = movState;
-  const item = ITEMS.find(i => i.id === id);
+  const item = items.find(i => i.id === id);
   const qty = parseFloat(document.getElementById('movQty').value) || 0;
   const obs = document.getElementById('movObs').value.trim();
   if (qty <= 0) { toast('Quantidade inválida'); return; }
-  const cur = stock[id] || 0;
-  if (tipo === 'saida' && cur < qty) { toast('Estoque insuficiente'); return; }
-  stock[id] = Math.max(0, +(cur + (tipo==='entrada' ? qty : -qty)).toFixed(2));
-  hist.unshift({id, nome:item.nome, tipo, qty, un:item.un, obs, ts:new Date().toISOString()});
-  if (hist.length > 500) hist = hist.slice(0,500);
-  save(); closeMov(); render();
-  toast((tipo==='entrada'?'+':'-')+qty+' '+item.un+' — '+item.nome);
+  const cur = item.quantidade || 0;
+  if (tipo==='saida' && cur < qty) { toast('Estoque insuficiente'); return; }
+  const newQty = Math.max(0, +(cur + (tipo==='entrada'?qty:-qty)).toFixed(2));
+  closeMov();
+  await updateQty(id, newQty, tipo, qty, obs);
 }
 
 function openAjuste(id) {
-  const item = ITEMS.find(i => i.id === id);
+  const item = items.find(i => i.id === id);
   ajState = {id};
-  document.getElementById('ajSubtitle').textContent = item.nome + ' ('+item.un+')';
-  document.getElementById('ajQty').value = stock[id] || 0;
+  document.getElementById('ajSubtitle').textContent = item.nome + ' (' + item.unidade + ')';
+  document.getElementById('ajQty').value = item.quantidade || 0;
   document.getElementById('modalAjuste').classList.remove('hidden');
   setTimeout(() => document.getElementById('ajQty').select(), 80);
 }
 function closeAjuste() { document.getElementById('modalAjuste').classList.add('hidden'); }
-function confirmAjuste() {
+async function confirmAjuste() {
   const {id} = ajState;
-  const item = ITEMS.find(i => i.id === id);
+  const item = items.find(i => i.id === id);
   const qty = parseFloat(document.getElementById('ajQty').value);
   if (isNaN(qty) || qty < 0) { toast('Valor inválido'); return; }
-  const anterior = stock[id] || 0;
-  stock[id] = qty;
-  hist.unshift({id, nome:item.nome, tipo:'ajuste', qty, un:item.un, obs:'anterior: '+anterior, ts:new Date().toISOString()});
-  save(); closeAjuste(); render();
-  toast('Ajustado para '+qty+' '+item.un);
+  closeAjuste();
+  await updateQty(id, qty, 'ajuste', qty, 'anterior: '+(item.quantidade||0));
 }
 
 function openHistGeral() {
   document.getElementById('histTitle').textContent = 'Histórico Geral';
-  document.getElementById('histSubtitle').textContent = hist.length+' movimentos';
+  document.getElementById('histSubtitle').textContent = hist.length + ' movimentos';
   document.getElementById('histList').innerHTML = histHTML(hist.slice(0,100));
   document.getElementById('modalHist').classList.remove('hidden');
 }
 function closeHist() { document.getElementById('modalHist').classList.add('hidden'); }
 function clearHist() {
   if (!confirm('Limpar todo o histórico?')) return;
-  hist = []; save();
+  hist = [];
+  try { localStorage.setItem('cdcfit_mp_hist3', '[]'); } catch(_){}
   document.getElementById('modalHist').classList.add('hidden');
   toast('Histórico limpo');
 }
 function histHTML(list) {
   if (!list.length) return '<div style="color:var(--muted);text-align:center;padding:20px;font-size:13px">Sem movimentos</div>';
   return list.map(h => {
-    const icon  = h.tipo==='entrada'?'📦':h.tipo==='saida'?'📤':'✏️';
-    const cls   = h.tipo==='entrada'?'pos':h.tipo==='saida'?'neg':'';
-    const sign  = h.tipo==='entrada'?'+':h.tipo==='saida'?'−':'=';
-    const dt    = new Date(h.ts);
-    const dtStr = dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const icon = h.tipo==='entrada'?'📦':h.tipo==='saida'?'📤':'✏️';
+    const cls  = h.tipo==='entrada'?'pos':h.tipo==='saida'?'neg':'';
+    const sign = h.tipo==='entrada'?'+':h.tipo==='saida'?'−':'=';
+    const dt   = new Date(h.ts);
+    const dtStr= dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
     return `<div class="hist-item">
       <div class="hist-icon">${icon}</div>
       <div class="hist-detail"><strong>${h.nome}</strong><span>${dtStr}${h.obs?' · '+h.obs:''}</span></div>
-      <div class="hist-qty ${cls}">${sign}${h.qty}${h.un}</div>
+      <div class="hist-qty ${cls}">${sign}${h.qty} ${h.un}</div>
     </div>`;
   }).join('');
 }
 
 function exportCSV() {
   const lines = ['Item,Categoria,Unidade,Estoque'];
-  ITEMS.forEach(i => lines.push(`"${i.nome}","${CATS[i.cat].label}","${i.un}",${stock[i.id]||0}`));
+  items.forEach(i => lines.push(`"${i.nome}","${i.categoria}","${i.unidade}",${i.quantidade||0}`));
   const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = 'estoque-mp-'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
@@ -454,12 +391,12 @@ setInterval(tick,1000); tick();
 document.addEventListener('keydown', e => {
   if (e.key==='Escape') { closeMov(); closeAjuste(); closeHist(); }
   if (e.key==='Enter') {
-    if (!document.getElementById('modalMov').classList.contains('hidden'))    confirmMov();
+    if (!document.getElementById('modalMov').classList.contains('hidden')) confirmMov();
     else if (!document.getElementById('modalAjuste').classList.contains('hidden')) confirmAjuste();
   }
 });
 
-load(); renderFilters(); render();
+init();
 </script>
 </body>
 </html>
