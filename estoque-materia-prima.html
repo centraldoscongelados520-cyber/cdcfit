@@ -47,7 +47,7 @@
   .qty-val:hover{color:var(--red);}
   .qty-val.zero{color:var(--red);}.qty-val.low{color:var(--orange);}
   .qty-unit{font-size:10px;color:var(--muted);}
-  .actions-cell{text-align:right;white-space:nowrap;}
+  .actions-cell{text-align:right;white-space:nowrap;} @media(max-width:480px){.actions-cell{white-space:normal;} .btn-mov{margin-top:3px;margin-left:0;margin-right:4px;}}
   .btn-sm{width:32px;height:32px;border-radius:7px;border:none;cursor:pointer;font-size:17px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;transition:transform .1s;}
   .btn-sm:active{transform:scale(.9);}
   .btn-plus{background:#14532d;color:var(--green);}
@@ -80,7 +80,7 @@
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;z-index:300;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;}
   .toast.show{opacity:1;}
   .loader{text-align:center;padding:60px 20px;color:var(--muted);}
-  @media(max-width:480px){.hide-mob{display:none;}}
+  @media(max-width:480px){.item-name{font-size:13px;} .qty-val{font-size:18px;} .btn-sm{width:28px;height:28px;font-size:14px;} .btn-mov{font-size:10px;padding:4px 7px;}}
 </style>
 </head>
 <body>
@@ -243,7 +243,7 @@ function render(){
         <thead><tr>
           <th>Item</th>
           <th style="text-align:center;width:100px">Estoque</th>
-          <th style="text-align:right;width:160px" class="hide-mob">Ações</th>
+          <th style="text-align:right;width:160px">Ações</th>
         </tr></thead>
         <tbody>${its.map(item=>{
           const qty=item.quantidade||0;
@@ -255,7 +255,7 @@ function render(){
               <span class="qty-val ${st.cls}" onclick="openAjuste(${item.id})" title="Clique para ajustar">${qtyDisp}</span>
               <div class="qty-unit">${item.unidade}</div>
             </td>
-            <td class="actions-cell hide-mob">
+            <td class="actions-cell">
               <button class="btn-sm btn-plus"  onclick="quick(${item.id},1)">＋</button>
               <button class="btn-sm btn-minus" onclick="quick(${item.id},-1)">－</button>
               <button class="btn-mov" onclick="openMov(${item.id},'entrada')">Entrada</button>
