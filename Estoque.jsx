@@ -1,279 +1,397 @@
-import { useState, useCallback, useMemo } from "react";
-import { today, nowStr } from "./data.js";
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDC Fit — Estoque Matéria Prima</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{--red:#E8271A;--bg:#111113;--surface:#1c1c1f;--surface2:#26262a;--border:#333336;--text:#f0f0f0;--muted:#888;--green:#22c55e;--orange:#f97316;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
+  header{background:var(--surface);border-bottom:2px solid var(--red);padding:12px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
+  .logo{font-size:18px;font-weight:800;color:var(--red);}.logo span{color:var(--text);}
+  #clock{font-size:13px;color:var(--muted);margin-left:auto;}
+  .toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .search-box{flex:1;min-width:180px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:14px;outline:none;}
+  .search-box:focus{border-color:var(--red);}
+  .search-box::placeholder{color:var(--muted);}
+  .btn-tool{padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;}
+  .btn-tool:hover{color:var(--text);border-color:#555;}
+  .stats-bar{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;}
+  .stat{text-align:center;padding:10px 20px;border-right:1px solid var(--border);white-space:nowrap;}
+  .stat-val{font-size:20px;font-weight:800;}
+  .stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  .red{color:var(--red);}.orange{color:var(--orange);}.green{color:var(--green);}
+  .filters{display:flex;gap:6px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg);}
+  .filter-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;background:var(--surface);color:var(--muted);transition:all .15s;}
+  .section{padding:0 16px 16px;}
+  .section-header{display:flex;align-items:center;gap:10px;padding:14px 0 8px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+  .section-dot{width:10px;height:10px;border-radius:50%;}
+  .section-title{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+  .section-count{font-size:12px;color:var(--muted);margin-left:auto;}
+  .item-table{width:100%;border-collapse:collapse;}
+  .item-table th{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:6px 8px;text-align:left;font-weight:600;}
+  .item-row{border-top:1px solid var(--border);transition:background .1s;}
+  .item-row:hover{background:var(--surface);}
+  .item-row.zero{background:rgba(232,39,26,.06);}
+  .item-row.low{background:rgba(249,115,22,.06);}
+  .item-row td{padding:9px 8px;vertical-align:middle;}
+  .item-name{font-size:14px;font-weight:500;}
+  .badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;display:inline-block;margin-left:6px;}
+  .badge.ok{background:#14532d;color:#86efac;}
+  .badge.low{background:#431407;color:#fdba74;}
+  .badge.zero{background:#450a0a;color:#f87171;}
+  .qty-cell{text-align:center;min-width:90px;}
+  .qty-val{font-size:22px;font-weight:800;cursor:pointer;transition:color .15s;display:inline-block;}
+  .qty-val:hover{color:var(--red);}
+  .qty-val.zero{color:var(--red);}.qty-val.low{color:var(--orange);}
+  .qty-unit{font-size:10px;color:var(--muted);}
+  .actions-cell{text-align:right;white-space:nowrap;} @media(max-width:480px){.actions-cell{white-space:normal;} .btn-mov{margin-top:3px;margin-left:0;margin-right:4px;}}
+  .btn-sm{width:32px;height:32px;border-radius:7px;border:none;cursor:pointer;font-size:17px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;transition:transform .1s;}
+  .btn-sm:active{transform:scale(.9);}
+  .btn-plus{background:#14532d;color:var(--green);}
+  .btn-minus{background:#450a0a;color:#f87171;}
+  .btn-mov{padding:5px 10px;border-radius:6px;border:1px solid var(--border);font-size:11px;font-weight:600;cursor:pointer;background:var(--surface2);color:var(--muted);margin-left:4px;}
+  .btn-mov:hover{color:var(--text);border-color:#555;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
+  .modal-overlay.hidden{display:none;}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:360px;max-height:85vh;overflow-y:auto;}
+  .modal-title{font-size:16px;font-weight:700;margin-bottom:4px;}
+  .modal-subtitle{font-size:12px;color:var(--muted);margin-bottom:18px;}
+  .modal label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;margin-top:12px;}
+  .modal input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:14px;outline:none;}
+  .modal input:focus{border-color:var(--red);}
+  .modal input[type="number"]{font-size:26px;font-weight:700;text-align:center;}
+  .modal-actions{display:flex;gap:8px;margin-top:20px;}
+  .btn-confirm{flex:1;padding:12px;border-radius:8px;border:none;font-size:14px;font-weight:700;cursor:pointer;}
+  .btn-confirm.entrada{background:var(--green);color:#000;}
+  .btn-confirm.saida{background:#ef4444;color:#fff;}
+  .btn-confirm.ajuste{background:var(--red);color:#fff;}
+  .btn-cancel{padding:12px 16px;border-radius:8px;border:1px solid var(--border);font-size:14px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);}
+  .hist-list{max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;}
+  .hist-item{padding:8px 10px;border-radius:8px;background:var(--surface2);display:flex;gap:8px;align-items:center;}
+  .hist-icon{font-size:15px;min-width:22px;text-align:center;}
+  .hist-detail{flex:1;}
+  .hist-detail strong{font-size:13px;display:block;}
+  .hist-detail span{font-size:11px;color:var(--muted);}
+  .hist-qty{font-size:13px;font-weight:700;}
+  .hist-qty.pos{color:var(--green);}.hist-qty.neg{color:#f87171;}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;z-index:300;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;}
+  .toast.show{opacity:1;}
+  .loader{text-align:center;padding:60px 20px;color:var(--muted);}
+  @media(max-width:480px){.item-name{font-size:13px;} .qty-val{font-size:18px;} .btn-sm{width:28px;height:28px;font-size:14px;} .btn-mov{font-size:10px;padding:4px 7px;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">CDC<span>Fit</span></div>
+  <div style="width:1px;height:24px;background:var(--border)"></div>
+  <span style="font-size:14px;font-weight:600;">Estoque Matéria Prima</span>
+  <span id="clock"></span>
+</header>
+<div class="toolbar">
+  <input class="search-box" type="text" id="searchInput" placeholder="🔍 Buscar item..." oninput="render()">
+  <button class="btn-tool" onclick="openHistGeral()">📋 Histórico</button>
+  <button class="btn-tool" onclick="exportCSV()">⬇ CSV</button>
+  <button class="btn-tool" onclick="loadItems()" id="btnSync">🔄 Sync</button>
+</div>
+<div class="stats-bar" id="statsBar"></div>
+<div class="filters" id="filters"></div>
+<div id="main"><div class="loader">Conectando ao banco...</div></div>
 
-const SK = "cdcfit:estoque:mp:v1";
-const LK = "cdcfit:log:mp:v1";
-const WA = "5511991185018";
-
-const load = (key) => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch { return null; } };
-const save = (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} };
-
-const ITENS = [
-  { id: "arroz",          nome: "Arroz parbolizado" },
-  { id: "feijao",         nome: "Feijão carioca" },
-  { id: "carne_moida",    nome: "Carne moída patinho" },
-  { id: "pure_batata",    nome: "Purê de batata" },
-  { id: "pure_cabotia",   nome: "Purê de cabotiá" },
-  { id: "frango_base",    nome: "Frango base" },
-  { id: "legumes_mix",    nome: "Mix de legumes refogados" },
-  { id: "pernil",         nome: "Pernil cozido" },
-  { id: "molho_tomate",   nome: "Molho de tomate assado" },
-  { id: "molho_ap",       nome: "Molho branco de alho poró" },
-  { id: "feijoada",       nome: "Feijoada magra" },
-  { id: "couve",          nome: "Couve refogada" },
-  { id: "farofa",         nome: "Farofa" },
-  { id: "hamburguer",     nome: "Hambúrguer patinho" },
-  { id: "file_frango",    nome: "Filé de frango empanado" },
-  { id: "kibe",           nome: "Kibe assado" },
-  { id: "estrog_carne",   nome: "Estrogonofe de carne" },
-  { id: "batata_rustica", nome: "Batata rústica assada" },
-  { id: "picadinho",      nome: "Picadinho c/ batata e cenoura" },
-  { id: "frango_desf",    nome: "Frango desfiado refogado" },
-  { id: "brocolis",       nome: "Brócolis refogado" },
-  { id: "creme_milho",    nome: "Creme de milho" },
-  { id: "sobrecoxa",      nome: "Sobrecoxa assada" },
-  { id: "panqueca_d",     nome: "Massa de panqueca" },
-  { id: "couve_flor",     nome: "Couve-flor gratinada" },
-  { id: "penne_broc",     nome: "Penne c/ brócolis" },
-  { id: "salmao",         nome: "Salmão desfiado assado" },
-  { id: "batata_grat",    nome: "Batata rústica gratinada" },
-  { id: "arroz_broc",     nome: "Arroz com brócolis" },
-  { id: "lasanha",        nome: "Lasanha" },
-  { id: "caldo_verde",    nome: "Caldo verde" },
-  { id: "caldo_vit",      nome: "Caldo Vitality cabotiá c/ frango" },
-  { id: "caldo_mand",     nome: "Caldo de mandioquinha c/ carne seca" },
-  { id: "torta",          nome: "Torta de frango de aveia" },
-  { id: "mussarela",      nome: "Mussarela ralada" },
-  { id: "tomate_fresco",  nome: "Tomate picado fresco" },
-];
-
-export default function Estoque() {
-  const [stock,  setStock]  = useState(() => load(SK) || {});
-  const [log,    setLog]    = useState(() => load(LK) || []);
-  const [qtys,   setQtys]   = useState({});
-  const [compra, setCompra] = useState({});
-  const [tab,    setTab]    = useState("estoque");
-  const [flash,  setFlash]  = useState({});
-  const [busca,  setBusca]  = useState("");
-
-  // ── Movimentação ──────────────────────────────────────────────────────────
-  const move = useCallback((id, tipo) => {
-    const qty = parseInt(qtys[id]) || 1;
-    if (qty <= 0) return;
-    setStock(prev => {
-      const cur = prev[id] || 0;
-      if (tipo === "saida" && cur < qty) return prev;
-      const next = { ...prev, [id]: tipo === "entrada" ? cur + qty : cur - qty };
-      save(SK, next);
-      return next;
-    });
-    const item = ITENS.find(x => x.id === id);
-    const entry = { id: Date.now(), itemId: id, nome: item.nome, tipo, qty, hora: nowStr(), data: today() };
-    setLog(prev => { const next = [entry, ...prev].slice(0, 300); save(LK, next); return next; });
-    setFlash(f => ({ ...f, [id]: tipo }));
-    setTimeout(() => setFlash(f => { const n = { ...f }; delete n[id]; return n; }), 700);
-    setQtys(q => ({ ...q, [id]: 1 }));
-  }, [qtys]);
-
-  // ── Métricas ──────────────────────────────────────────────────────────────
-  const total      = Object.values(stock).reduce((a, b) => a + b, 0);
-  const semEstoque = ITENS.filter(i => (stock[i.id] || 0) === 0).length;
-  const hoje       = log.filter(l => l.data === today());
-  const entHj      = hoje.filter(l => l.tipo === "entrada").reduce((a, l) => a + l.qty, 0);
-  const saiHj      = hoje.filter(l => l.tipo === "saida").reduce((a, l) => a + l.qty, 0);
-
-  // ── Lista de compras ───────────────────────────────────────────────────────
-  const zerados = useMemo(() => ITENS.filter(i => (stock[i.id] || 0) === 0), [stock]);
-  const baixos  = useMemo(() => ITENS.filter(i => { const s = stock[i.id] || 0; return s > 0 && s <= 3; }), [stock]);
-  const alertas = zerados.length + baixos.length;
-
-  const getQC = (id, def) => compra[id] !== undefined ? compra[id] : def;
-  const setQC = (id, val) => setCompra(c => ({ ...c, [id]: Math.max(0, parseInt(val) || 0) }));
-
-  const enviarWA = () => {
-    const lZ = zerados.filter(i => getQC(i.id, 10) > 0)
-      .map(i => `• ${i.nome} → *${getQC(i.id, 10)} un.*`);
-    const lB = baixos.filter(i => getQC(i.id, 5) > 0)
-      .map(i => `• ${i.nome} (estoque: ${stock[i.id]}) → *${getQC(i.id, 5)} un.*`);
-    if (!lZ.length && !lB.length) return;
-    let msg = `🛒 *Lista de Compras — CDC Fit*\n📅 ${today()}\n\n`;
-    if (lZ.length) msg += `🔴 *SEM ESTOQUE*\n${lZ.join("\n")}\n\n`;
-    if (lB.length) msg += `🟡 *ESTOQUE BAIXO (≤ 3)*\n${lB.join("\n")}`;
-    window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg.trim())}`, "_blank");
-  };
-
-  const visivel = busca.trim()
-    ? ITENS.filter(i => i.nome.toLowerCase().includes(busca.toLowerCase()))
-    : ITENS;
-
-  // ── Render ────────────────────────────────────────────────────────────────
-  return (
-    <div className="page">
-      <div className="header">
-        <div>
-          <div className="brand">CDC FIT</div>
-          <h1>Estoque de Matéria Prima</h1>
-        </div>
-      </div>
-
-      <div className="metrics">
-        {[
-          { label: "Total em estoque", val: total },
-          { label: "Entradas hoje",    val: entHj,  color: "var(--green)" },
-          { label: "Saídas hoje",      val: saiHj,  color: "var(--red)" },
-          { label: "Sem estoque",      val: semEstoque, color: semEstoque > 0 ? "var(--amber)" : undefined },
-        ].map(m => (
-          <div key={m.label} className="metric-card">
-            <span className="metric-label">{m.label}</span>
-            <span className="metric-val" style={{ color: m.color }}>{m.val}</span>
-          </div>
-        ))}
-      </div>
-
-      <div className="tabs">
-        {[
-          { key: "estoque",   label: "Estoque" },
-          { key: "historico", label: `Histórico${log.length > 0 ? ` (${log.length})` : ""}` },
-          { key: "compras",   label: "Lista de Compras", badge: alertas },
-        ].map(t => (
-          <button key={t.key} className={`tab ${tab === t.key ? "active" : ""}`} onClick={() => setTab(t.key)}>
-            {t.label}
-            {t.badge > 0 && <span className="tab-badge">{t.badge}</span>}
-          </button>
-        ))}
-      </div>
-
-      {/* ── ABA: ESTOQUE ── */}
-      {tab === "estoque" && (
-        <>
-          <input
-            type="text"
-            placeholder="Buscar ingrediente..."
-            value={busca}
-            onChange={e => setBusca(e.target.value)}
-            style={{ width: "100%", padding: "8px 12px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", fontFamily: "inherit", fontSize: 13, marginBottom: 12, outline: "none" }}
-          />
-          <div className="item-list">
-            {visivel.map(item => {
-              const qty = qtys[item.id] ?? 1;
-              const cur = stock[item.id] || 0;
-              const fl  = flash[item.id];
-              return (
-                <div key={item.id} className={`item-row ${fl === "entrada" ? "entrada" : fl === "saida" ? "saida" : ""}`}>
-                  <div className="item-info">
-                    <div className="item-nome">{item.nome}</div>
-                  </div>
-                  <div className="item-stock" style={{ color: cur === 0 ? "var(--red)" : cur <= 3 ? "var(--amber)" : "var(--text)" }}>
-                    {cur}
-                  </div>
-                  <div className="qty-controls">
-                    <button className="qty-btn" onClick={() => setQtys(q => ({ ...q, [item.id]: Math.max(1, (parseInt(q[item.id]) || 1) - 1) }))}>−</button>
-                    <input type="number" min="1" value={qty} onChange={e => setQtys(q => ({ ...q, [item.id]: Math.max(1, parseInt(e.target.value) || 1) }))} className="qty-input" />
-                    <button className="qty-btn" onClick={() => setQtys(q => ({ ...q, [item.id]: (parseInt(q[item.id]) || 1) + 1 }))}>+</button>
-                  </div>
-                  <button className="btn-entrada" onClick={() => move(item.id, "entrada")}>↓ Entrada</button>
-                  <button className="btn-saida"   onClick={() => move(item.id, "saida")} disabled={cur <= 0}>↑ Saída</button>
-                </div>
-              );
-            })}
-          </div>
-        </>
-      )}
-
-      {/* ── ABA: HISTÓRICO ── */}
-      {tab === "historico" && (
-        <div>
-          <div className="log-header">
-            <span>Movimentações registradas</span>
-            {log.length > 0 && (
-              <button className="btn-danger-ghost" onClick={() => { setLog([]); localStorage.removeItem(LK); }}>
-                Limpar histórico
-              </button>
-            )}
-          </div>
-          {log.length === 0
-            ? <p className="empty">Nenhuma movimentação registrada.</p>
-            : log.map(l => (
-                <div key={l.id} className="log-row">
-                  <span className={`log-badge ${l.tipo}`}>{l.tipo === "entrada" ? "↓ entrada" : "↑ saída"}</span>
-                  <span className="log-nome">{l.nome}</span>
-                  <span className="log-qty">×{l.qty}</span>
-                  <span className="log-hora">{l.data !== today() ? l.data : l.hora}</span>
-                </div>
-              ))
-          }
-        </div>
-      )}
-
-      {/* ── ABA: LISTA DE COMPRAS ── */}
-      {tab === "compras" && (
-        <div>
-          {zerados.length === 0 && baixos.length === 0 ? (
-            <div className="empty-state">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ opacity: 0.3, marginBottom: 12 }}>
-                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Estoque OK — nenhum item zerado ou abaixo de 3
-            </div>
-          ) : (
-            <>
-              {zerados.length > 0 && (
-                <div className="compra-section">
-                  <div className="compra-section-title compra-red">
-                    🔴 Sem estoque — {zerados.length} {zerados.length === 1 ? "item" : "itens"}
-                  </div>
-                  {zerados.map(item => {
-                    const qtd = getQC(item.id, 10);
-                    return (
-                      <div key={item.id} className="compra-row">
-                        <div className="item-info"><div className="item-nome">{item.nome}</div></div>
-                        <div className="compra-stock compra-red-text">0</div>
-                        <div className="qty-controls">
-                          <button className="qty-btn" onClick={() => setQC(item.id, qtd - 1)}>−</button>
-                          <input type="number" min="0" value={qtd} onChange={e => setQC(item.id, e.target.value)} className="qty-input" />
-                          <button className="qty-btn" onClick={() => setQC(item.id, qtd + 1)}>+</button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {baixos.length > 0 && (
-                <div className="compra-section">
-                  <div className="compra-section-title compra-amber">
-                    🟡 Estoque baixo (≤ 3) — {baixos.length} {baixos.length === 1 ? "item" : "itens"}
-                  </div>
-                  {baixos.map(item => {
-                    const cur = stock[item.id] || 0;
-                    const qtd = getQC(item.id, 5);
-                    return (
-                      <div key={item.id} className="compra-row">
-                        <div className="item-info"><div className="item-nome">{item.nome}</div></div>
-                        <div className="compra-stock compra-amber-text">{cur}</div>
-                        <div className="qty-controls">
-                          <button className="qty-btn" onClick={() => setQC(item.id, qtd - 1)}>−</button>
-                          <input type="number" min="0" value={qtd} onChange={e => setQC(item.id, e.target.value)} className="qty-input" />
-                          <button className="qty-btn" onClick={() => setQC(item.id, qtd + 1)}>+</button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              <button className="btn-whatsapp" onClick={enviarWA}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                </svg>
-                Enviar lista para WhatsApp
-              </button>
-            </>
-          )}
-        </div>
-      )}
-
-      <p className="footer">Dados salvos localmente · CDC Fit Estoque MP v1.0</p>
+<div class="modal-overlay hidden" id="modalMov">
+  <div class="modal">
+    <div class="modal-title" id="movTitle"></div>
+    <div class="modal-subtitle" id="movSubtitle"></div>
+    <label>Quantidade</label>
+    <input type="number" id="movQty" value="1" min="0.01" step="0.01">
+    <label>Observação (opcional)</label>
+    <input type="text" id="movObs" placeholder="Ex: compra, devolução...">
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeMov()">Cancelar</button>
+      <button class="btn-confirm" id="btnMovConfirm" onclick="confirmMov()">Confirmar</button>
     </div>
-  );
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modalAjuste">
+  <div class="modal">
+    <div class="modal-title">Ajuste de Estoque</div>
+    <div class="modal-subtitle" id="ajSubtitle"></div>
+    <label>Quantidade atual</label>
+    <input type="number" id="ajQty" value="0" min="0" step="0.01">
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeAjuste()">Cancelar</button>
+      <button class="btn-confirm ajuste" onclick="confirmAjuste()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modalHist">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-title" id="histTitle">Histórico</div>
+    <div class="modal-subtitle" id="histSubtitle"></div>
+    <div class="hist-list" id="histList"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" style="flex:1" onclick="closeHist()">Fechar</button>
+      <button class="btn-confirm saida" onclick="clearHist()">Limpar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://slqcvqshhxftvmeiwcnu.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNscWN2cXNoaHhmdHZtZWl3Y251Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1ODIwOTMsImV4cCI6MjA5NDE1ODA5M30.FLGWl-NRePxoxItGT0GM2C3XjwbON89eRJWo6Uc7hgQ';
+const LOW = 3;
+
+const CATS = {
+  'Proteínas':       {emoji:'🥩', color:'#dc2626'},
+  'Hortifruti':      {emoji:'🥦', color:'#16a34a'},
+  'Grãos':           {emoji:'🌾', color:'#ca8a04'},
+  'Laticínios':      {emoji:'🧀', color:'#d97706'},
+  'Temperos':        {emoji:'🧂', color:'#7c3aed'},
+  'Industrializados':{emoji:'🥫', color:'#0369a1'},
+  'Limpeza':         {emoji:'🧹', color:'#0f766e'},
+  'Doces':           {emoji:'🍫', color:'#be185d'},
+  'Frutas':          {emoji:'🍊', color:'#ea580c'},
+};
+const CAT_ORDER = Object.keys(CATS);
+
+let sb, items=[], activeCat='TODOS', movState={}, ajState={};
+let hist=[];
+try{ hist=JSON.parse(localStorage.getItem('cdcfit_mp_hist3')||'[]'); }catch(_){}
+
+async function init(){
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  await loadItems();
+  sb.channel('stock_mp').on('postgres_changes',{event:'UPDATE',schema:'public',table:'stock_mp'},payload=>{
+    const idx=items.findIndex(i=>i.id===payload.new.id);
+    if(idx>=0){items[idx]=payload.new;render();}
+  }).subscribe();
 }
+
+async function loadItems(){
+  document.getElementById('btnSync').textContent='⏳';
+  const{data,error}=await sb.from('stock_mp').select('*').order('id');
+  if(error){
+    document.getElementById('main').innerHTML=`<div class="loader">❌ Erro: ${error.message}</div>`;
+    document.getElementById('btnSync').textContent='🔄 Sync';
+    return;
+  }
+  items=data||[];
+  renderFilters();render();renderStats();
+  document.getElementById('btnSync').textContent='🔄 Sync';
+}
+
+function status(qty){
+  if(qty===0)  return{cls:'zero',label:'ZERADO'};
+  if(qty<=LOW) return{cls:'low', label:'BAIXO'};
+  return            {cls:'ok',  label:'OK'};
+}
+
+function renderStats(){
+  const zeroed=items.filter(i=>(i.quantidade||0)===0).length;
+  const low=items.filter(i=>(i.quantidade||0)>0&&(i.quantidade||0)<=LOW).length;
+  const ok=items.length-zeroed-low;
+  document.getElementById('statsBar').innerHTML=`
+    <div class="stat"><div class="stat-val">${items.length}</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-val green">${ok}</div><div class="stat-label">OK</div></div>
+    <div class="stat"><div class="stat-val orange">${low}</div><div class="stat-label">Baixo</div></div>
+    <div class="stat"><div class="stat-val red">${zeroed}</div><div class="stat-label">Zerados</div></div>`;
+}
+
+function renderFilters(){
+  const all=['TODOS',...CAT_ORDER];
+  document.getElementById('filters').innerHTML=all.map(c=>{
+    const info=CATS[c];
+    const active=activeCat===c;
+    const bg=active?(c==='TODOS'?'var(--red)':info?.color):'';
+    const style=active?`background:${bg};border-color:transparent;color:#fff`:'';
+    return`<button class="filter-btn" style="${style}" onclick="setFilter('${c}')">${info?info.emoji+' '+c:'Todos'}</button>`;
+  }).join('');
+}
+
+function setFilter(cat){activeCat=cat;renderFilters();render();}
+
+function render(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const filtered=items.filter(i=>{
+    const matchCat=activeCat==='TODOS'||i.categoria===activeCat;
+    const matchQ=!q||i.nome.toLowerCase().includes(q);
+    return matchCat&&matchQ;
+  });
+  if(!filtered.length){
+    document.getElementById('main').innerHTML=`<div class="loader">🔍 Nenhum item encontrado</div>`;
+    return;
+  }
+  const cats=activeCat==='TODOS'?CAT_ORDER:[activeCat];
+  let html='';
+  cats.forEach(cat=>{
+    const its=filtered.filter(i=>i.categoria===cat);
+    if(!its.length)return;
+    const info=CATS[cat];
+    html+=`<div class="section">
+      <div class="section-header">
+        <div class="section-dot" style="background:${info.color}"></div>
+        <span class="section-title">${info.emoji} ${cat}</span>
+        <span class="section-count">${its.length} itens</span>
+      </div>
+      <table class="item-table">
+        <thead><tr>
+          <th>Item</th>
+          <th style="text-align:center;width:100px">Estoque</th>
+          <th style="text-align:right;width:160px">Ações</th>
+        </tr></thead>
+        <tbody>${its.map(item=>{
+          const qty=item.quantidade||0;
+          const st=status(qty);
+          const qtyDisp=qty%1===0?qty:qty.toFixed(2);
+          return`<tr class="item-row ${st.cls}">
+            <td><span class="item-name">${item.nome}</span><span class="badge ${st.cls}">${st.label}</span></td>
+            <td class="qty-cell">
+              <span class="qty-val ${st.cls}" onclick="openAjuste(${item.id})" title="Clique para ajustar">${qtyDisp}</span>
+              <div class="qty-unit">${item.unidade}</div>
+            </td>
+            <td class="actions-cell">
+              <button class="btn-sm btn-plus"  onclick="quick(${item.id},1)">＋</button>
+              <button class="btn-sm btn-minus" onclick="quick(${item.id},-1)">－</button>
+              <button class="btn-mov" onclick="openMov(${item.id},'entrada')">Entrada</button>
+              <button class="btn-mov" onclick="openMov(${item.id},'saida')">Saída</button>
+            </td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>`;
+  });
+  document.getElementById('main').innerHTML=html;
+  renderStats();
+}
+
+async function updateQty(id,newQty,tipo,qty,obs){
+  const item=items.find(i=>i.id===id);
+  const{error}=await sb.from('stock_mp').update({quantidade:newQty}).eq('id',id);
+  if(error){toast('Erro: '+error.message);return;}
+  item.quantidade=newQty;
+  hist.unshift({id,nome:item.nome,tipo,qty,un:item.unidade,obs,ts:new Date().toISOString()});
+  if(hist.length>500)hist=hist.slice(0,500);
+  try{localStorage.setItem('cdcfit_mp_hist3',JSON.stringify(hist));}catch(_){}
+  render();
+  toast((tipo==='entrada'?'+':tipo==='saida'?'−':'=')+qty+' '+item.unidade+' — '+item.nome);
+}
+
+async function quick(id,delta){
+  const item=items.find(i=>i.id===id);
+  const cur=item.quantidade||0;
+  if(delta<0&&cur<=0){toast('Estoque zerado');return;}
+  await updateQty(id,Math.max(0,+(cur+delta).toFixed(2)),delta>0?'entrada':'saida',Math.abs(delta),'');
+}
+
+function openMov(id,tipo){
+  const item=items.find(i=>i.id===id);
+  movState={id,tipo};
+  document.getElementById('movTitle').textContent=tipo==='entrada'?'📦 Entrada':'📤 Saída';
+  document.getElementById('movSubtitle').textContent=item.nome+' ('+item.unidade+')';
+  document.getElementById('movQty').value=1;
+  document.getElementById('movObs').value='';
+  const btn=document.getElementById('btnMovConfirm');
+  btn.textContent=tipo==='entrada'?'Confirmar Entrada':'Confirmar Saída';
+  btn.className='btn-confirm '+tipo;
+  document.getElementById('modalMov').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('movQty').focus(),80);
+}
+function closeMov(){document.getElementById('modalMov').classList.add('hidden');}
+async function confirmMov(){
+  const{id,tipo}=movState;
+  const item=items.find(i=>i.id===id);
+  const qty=parseFloat(document.getElementById('movQty').value)||0;
+  const obs=document.getElementById('movObs').value.trim();
+  if(qty<=0){toast('Quantidade inválida');return;}
+  const cur=item.quantidade||0;
+  if(tipo==='saida'&&cur<qty){toast('Estoque insuficiente');return;}
+  const newQty=Math.max(0,+(cur+(tipo==='entrada'?qty:-qty)).toFixed(2));
+  closeMov();
+  await updateQty(id,newQty,tipo,qty,obs);
+}
+
+function openAjuste(id){
+  const item=items.find(i=>i.id===id);
+  ajState={id};
+  document.getElementById('ajSubtitle').textContent=item.nome+' ('+item.unidade+')';
+  document.getElementById('ajQty').value=item.quantidade||0;
+  document.getElementById('modalAjuste').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('ajQty').select(),80);
+}
+function closeAjuste(){document.getElementById('modalAjuste').classList.add('hidden');}
+async function confirmAjuste(){
+  const{id}=ajState;
+  const item=items.find(i=>i.id===id);
+  const qty=parseFloat(document.getElementById('ajQty').value);
+  if(isNaN(qty)||qty<0){toast('Valor inválido');return;}
+  closeAjuste();
+  await updateQty(id,qty,'ajuste',qty,'anterior: '+(item.quantidade||0));
+}
+
+function openHistGeral(){
+  document.getElementById('histTitle').textContent='Histórico Geral';
+  document.getElementById('histSubtitle').textContent=hist.length+' movimentos';
+  document.getElementById('histList').innerHTML=histHTML(hist.slice(0,100));
+  document.getElementById('modalHist').classList.remove('hidden');
+}
+function closeHist(){document.getElementById('modalHist').classList.add('hidden');}
+function clearHist(){
+  if(!confirm('Limpar todo o histórico?'))return;
+  hist=[];
+  try{localStorage.setItem('cdcfit_mp_hist3','[]');}catch(_){}
+  document.getElementById('modalHist').classList.add('hidden');
+  toast('Histórico limpo');
+}
+function histHTML(list){
+  if(!list.length)return'<div style="color:var(--muted);text-align:center;padding:20px;font-size:13px">Sem movimentos</div>';
+  return list.map(h=>{
+    const icon=h.tipo==='entrada'?'📦':h.tipo==='saida'?'📤':'✏️';
+    const cls=h.tipo==='entrada'?'pos':h.tipo==='saida'?'neg':'';
+    const sign=h.tipo==='entrada'?'+':h.tipo==='saida'?'−':'=';
+    const dt=new Date(h.ts);
+    const dtStr=dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    return`<div class="hist-item">
+      <div class="hist-icon">${icon}</div>
+      <div class="hist-detail"><strong>${h.nome}</strong><span>${dtStr}${h.obs?' · '+h.obs:''}</span></div>
+      <div class="hist-qty ${cls}">${sign}${h.qty} ${h.un}</div>
+    </div>`;
+  }).join('');
+}
+
+function exportCSV(){
+  const lines=['Item,Categoria,Unidade,Estoque'];
+  items.forEach(i=>lines.push(`"${i.nome}","${i.categoria}","${i.unidade}",${i.quantidade||0}`));
+  const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='estoque-mp-'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  toast('CSV exportado!');
+}
+
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function tick(){document.getElementById('clock').textContent=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+setInterval(tick,1000);tick();
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeMov();closeAjuste();closeHist();}
+  if(e.key==='Enter'){
+    if(!document.getElementById('modalMov').classList.contains('hidden'))confirmMov();
+    else if(!document.getElementById('modalAjuste').classList.contains('hidden'))confirmAjuste();
+  }
+});
+
+init();
+</script>
+</body>
+</html>
