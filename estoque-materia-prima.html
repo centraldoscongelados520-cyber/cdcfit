@@ -47,7 +47,8 @@
   .qty-val:hover{color:var(--red);}
   .qty-val.zero{color:var(--red);}.qty-val.low{color:var(--orange);}
   .qty-unit{font-size:10px;color:var(--muted);}
-  .actions-cell{text-align:right;white-space:nowrap;} @media(max-width:480px){.actions-cell{white-space:normal;} .btn-mov{margin-top:3px;margin-left:0;margin-right:4px;}}
+  .actions-cell{text-align:right;white-space:nowrap;}
+  @media(max-width:480px){.actions-cell{white-space:normal;}.btn-mov{margin-top:3px;margin-left:0;margin-right:4px;}}
   .btn-sm{width:32px;height:32px;border-radius:7px;border:none;cursor:pointer;font-size:17px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;transition:transform .1s;}
   .btn-sm:active{transform:scale(.9);}
   .btn-plus{background:#14532d;color:var(--green);}
@@ -56,7 +57,7 @@
   .btn-mov:hover{color:var(--text);border-color:#555;}
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
   .modal-overlay.hidden{display:none;}
-  .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:360px;max-height:85vh;overflow-y:auto;}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:380px;max-height:85vh;overflow-y:auto;}
   .modal-title{font-size:16px;font-weight:700;margin-bottom:4px;}
   .modal-subtitle{font-size:12px;color:var(--muted);margin-bottom:18px;}
   .modal label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;margin-top:12px;}
@@ -69,18 +70,21 @@
   .btn-confirm.saida{background:#ef4444;color:#fff;}
   .btn-confirm.ajuste{background:var(--red);color:#fff;}
   .btn-cancel{padding:12px 16px;border-radius:8px;border:1px solid var(--border);font-size:14px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);}
+  .hist-filters{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+  .hist-filter{padding:4px 10px;border-radius:16px;border:1px solid var(--border);font-size:11px;font-weight:600;cursor:pointer;background:var(--surface2);color:var(--muted);}
+  .hist-filter.active{background:var(--red);border-color:var(--red);color:#fff;}
   .hist-list{max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;}
   .hist-item{padding:8px 10px;border-radius:8px;background:var(--surface2);display:flex;gap:8px;align-items:center;}
   .hist-icon{font-size:15px;min-width:22px;text-align:center;}
   .hist-detail{flex:1;}
   .hist-detail strong{font-size:13px;display:block;}
   .hist-detail span{font-size:11px;color:var(--muted);}
-  .hist-qty{font-size:13px;font-weight:700;}
+  .hist-qty{font-size:13px;font-weight:700;white-space:nowrap;}
   .hist-qty.pos{color:var(--green);}.hist-qty.neg{color:#f87171;}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;z-index:300;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;}
   .toast.show{opacity:1;}
   .loader{text-align:center;padding:60px 20px;color:var(--muted);}
-  @media(max-width:480px){.item-name{font-size:13px;} .qty-val{font-size:18px;} .btn-sm{width:28px;height:28px;font-size:14px;} .btn-mov{font-size:10px;padding:4px 7px;}}
+  @media(max-width:480px){.item-name{font-size:13px;}.qty-val{font-size:18px;}.btn-sm{width:28px;height:28px;font-size:14px;}.btn-mov{font-size:10px;padding:4px 7px;}}
 </style>
 </head>
 <body>
@@ -100,6 +104,7 @@
 <div class="filters" id="filters"></div>
 <div id="main"><div class="loader">Conectando ao banco...</div></div>
 
+<!-- MODAL MOVIMENTO -->
 <div class="modal-overlay hidden" id="modalMov">
   <div class="modal">
     <div class="modal-title" id="movTitle"></div>
@@ -115,6 +120,7 @@
   </div>
 </div>
 
+<!-- MODAL AJUSTE -->
 <div class="modal-overlay hidden" id="modalAjuste">
   <div class="modal">
     <div class="modal-title">Ajuste de Estoque</div>
@@ -128,14 +134,21 @@
   </div>
 </div>
 
+<!-- MODAL HISTÓRICO -->
 <div class="modal-overlay hidden" id="modalHist">
   <div class="modal" style="max-width:460px">
     <div class="modal-title" id="histTitle">Histórico</div>
     <div class="modal-subtitle" id="histSubtitle"></div>
+    <div class="hist-filters">
+      <button class="hist-filter active" onclick="filtrarHist('todos',this)">Todos</button>
+      <button class="hist-filter" onclick="filtrarHist('entrada',this)">📦 Entradas</button>
+      <button class="hist-filter" onclick="filtrarHist('saida',this)">📤 Saídas</button>
+      <button class="hist-filter" onclick="filtrarHist('ajuste',this)">✏️ Ajustes</button>
+    </div>
     <div class="hist-list" id="histList"></div>
     <div class="modal-actions">
       <button class="btn-cancel" style="flex:1" onclick="closeHist()">Fechar</button>
-      <button class="btn-confirm saida" onclick="clearHist()">Limpar</button>
+      <button class="btn-tool" onclick="exportHistCSV()">⬇ CSV</button>
     </div>
   </div>
 </div>
@@ -143,26 +156,25 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const SUPABASE_URL = 'https://slqcvqshhxftvmeiwcnu.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNscWN2cXNoaHhmdHZtZWl3Y251Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1ODIwOTMsImV4cCI6MjA5NDE1ODA5M30.FLGWl-NRePxoxItGT0GM2C3XjwbON89eRJWo6Uc7hgQ';
-const LOW = 3;
+const SUPABASE_URL='https://slqcvqshhxftvmeiwcnu.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNscWN2cXNoaHhmdHZtZWl3Y251Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1ODIwOTMsImV4cCI6MjA5NDE1ODA5M30.FLGWl-NRePxoxItGT0GM2C3XjwbON89eRJWo6Uc7hgQ';
+const LOW=3;
 
-const CATS = {
-  'Proteínas':       {emoji:'🥩', color:'#dc2626'},
-  'Hortifruti':      {emoji:'🥦', color:'#16a34a'},
-  'Grãos':           {emoji:'🌾', color:'#ca8a04'},
-  'Laticínios':      {emoji:'🧀', color:'#d97706'},
-  'Temperos':        {emoji:'🧂', color:'#7c3aed'},
-  'Industrializados':{emoji:'🥫', color:'#0369a1'},
-  'Limpeza':         {emoji:'🧹', color:'#0f766e'},
-  'Doces':           {emoji:'🍫', color:'#be185d'},
-  'Frutas':          {emoji:'🍊', color:'#ea580c'},
+const CATS={
+  'Proteínas':       {emoji:'🥩',color:'#dc2626'},
+  'Hortifruti':      {emoji:'🥦',color:'#16a34a'},
+  'Grãos':           {emoji:'🌾',color:'#ca8a04'},
+  'Laticínios':      {emoji:'🧀',color:'#d97706'},
+  'Temperos':        {emoji:'🧂',color:'#7c3aed'},
+  'Industrializados':{emoji:'🥫',color:'#0369a1'},
+  'Limpeza':         {emoji:'🧹',color:'#0f766e'},
+  'Doces':           {emoji:'🍫',color:'#be185d'},
+  'Frutas':          {emoji:'🍊',color:'#ea580c'},
 };
-const CAT_ORDER = Object.keys(CATS);
+const CAT_ORDER=Object.keys(CATS);
 
-let sb, items=[], activeCat='TODOS', movState={}, ajState={};
-let hist=[];
-try{ hist=JSON.parse(localStorage.getItem('cdcfit_mp_hist3')||'[]'); }catch(_){}
+let sb,items=[],activeCat='TODOS',movState={},ajState={};
+let histData=[],histFiltro='todos';
 
 async function init(){
   sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
@@ -270,14 +282,23 @@ function render(){
   renderStats();
 }
 
+async function salvarHist(item,tipo,qty,obs){
+  await sb.from('stock_mp_historico').insert({
+    item_id:item.id,
+    nome:item.nome,
+    tipo,
+    quantidade:qty,
+    unidade:item.unidade,
+    observacao:obs||null
+  });
+}
+
 async function updateQty(id,newQty,tipo,qty,obs){
   const item=items.find(i=>i.id===id);
   const{error}=await sb.from('stock_mp').update({quantidade:newQty}).eq('id',id);
   if(error){toast('Erro: '+error.message);return;}
   item.quantidade=newQty;
-  hist.unshift({id,nome:item.nome,tipo,qty,un:item.unidade,obs,ts:new Date().toISOString()});
-  if(hist.length>500)hist=hist.slice(0,500);
-  try{localStorage.setItem('cdcfit_mp_hist3',JSON.stringify(hist));}catch(_){}
+  await salvarHist(item,tipo,qty,obs);
   render();
   toast((tipo==='entrada'?'+':tipo==='saida'?'−':'=')+qty+' '+item.unidade+' — '+item.nome);
 }
@@ -334,34 +355,63 @@ async function confirmAjuste(){
   await updateQty(id,qty,'ajuste',qty,'anterior: '+(item.quantidade||0));
 }
 
-function openHistGeral(){
-  document.getElementById('histTitle').textContent='Histórico Geral';
-  document.getElementById('histSubtitle').textContent=hist.length+' movimentos';
-  document.getElementById('histList').innerHTML=histHTML(hist.slice(0,100));
+async function openHistGeral(){
+  document.getElementById('histTitle').textContent='Histórico de Movimentos';
+  document.getElementById('histList').innerHTML='<div style="color:var(--muted);text-align:center;padding:20px">Carregando...</div>';
   document.getElementById('modalHist').classList.remove('hidden');
+  histFiltro='todos';
+  document.querySelectorAll('.hist-filter').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.hist-filter').classList.add('active');
+  await carregarHist();
 }
+
+async function carregarHist(){
+  let query=sb.from('stock_mp_historico').select('*').order('criado_em',{ascending:false}).limit(200);
+  if(histFiltro!=='todos') query=query.eq('tipo',histFiltro);
+  const{data,error}=await query;
+  if(error){document.getElementById('histList').innerHTML='<div style="color:var(--red);padding:12px">Erro ao carregar</div>';return;}
+  histData=data||[];
+  document.getElementById('histSubtitle').textContent=histData.length+' movimentos';
+  document.getElementById('histList').innerHTML=histHTML(histData);
+}
+
+async function filtrarHist(tipo,btn){
+  histFiltro=tipo;
+  document.querySelectorAll('.hist-filter').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  await carregarHist();
+}
+
 function closeHist(){document.getElementById('modalHist').classList.add('hidden');}
-function clearHist(){
-  if(!confirm('Limpar todo o histórico?'))return;
-  hist=[];
-  try{localStorage.setItem('cdcfit_mp_hist3','[]');}catch(_){}
-  document.getElementById('modalHist').classList.add('hidden');
-  toast('Histórico limpo');
-}
+
 function histHTML(list){
   if(!list.length)return'<div style="color:var(--muted);text-align:center;padding:20px;font-size:13px">Sem movimentos</div>';
   return list.map(h=>{
     const icon=h.tipo==='entrada'?'📦':h.tipo==='saida'?'📤':'✏️';
     const cls=h.tipo==='entrada'?'pos':h.tipo==='saida'?'neg':'';
     const sign=h.tipo==='entrada'?'+':h.tipo==='saida'?'−':'=';
-    const dt=new Date(h.ts);
+    const dt=new Date(h.criado_em);
     const dtStr=dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
     return`<div class="hist-item">
       <div class="hist-icon">${icon}</div>
-      <div class="hist-detail"><strong>${h.nome}</strong><span>${dtStr}${h.obs?' · '+h.obs:''}</span></div>
-      <div class="hist-qty ${cls}">${sign}${h.qty} ${h.un}</div>
+      <div class="hist-detail"><strong>${h.nome}</strong><span>${dtStr}${h.observacao?' · '+h.observacao:''}</span></div>
+      <div class="hist-qty ${cls}">${sign}${h.quantidade} ${h.unidade}</div>
     </div>`;
   }).join('');
+}
+
+async function exportHistCSV(){
+  const{data}=await sb.from('stock_mp_historico').select('*').order('criado_em',{ascending:false});
+  if(!data||!data.length){toast('Sem dados');return;}
+  const lines=['Data,Item,Tipo,Quantidade,Unidade,Observação'];
+  data.forEach(h=>{
+    const dt=new Date(h.criado_em).toLocaleString('pt-BR');
+    lines.push(`"${dt}","${h.nome}","${h.tipo}",${h.quantidade},"${h.unidade}","${h.observacao||''}"`);
+  });
+  const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='historico-mp-'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  toast('CSV exportado!');
 }
 
 function exportCSV(){
